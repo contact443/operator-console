@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Operator Console — Contacts</title>
+    <title>Operator Console — Contacts (review copy)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -178,6 +178,160 @@
         background-image: none;
         transition: filter 120ms ease;
       }
+      .contact-grid {
+        width: 100%;
+        margin: 0;
+        columns: 280px;
+        column-gap: 16px;
+      }
+      /* Tile list: don’t stretch the tile block to the full scroll height (flex parent). */
+      #contactList.flex > .contact-grid {
+        align-self: flex-start;
+        flex: 0 0 auto;
+        max-width: 100%;
+      }
+      .contact-card {
+        box-sizing: border-box;
+        width: 280px;
+        max-width: 100%;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 16px;
+        border-radius: 12px;
+        border: 1px solid #e5e5e5;
+        background: #fff;
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+        display: inline-flex;
+        flex-direction: column;
+        gap: 0;
+        min-height: 0;
+        min-width: 0;
+        height: auto;
+        vertical-align: top;
+      }
+      .contact-tile-main {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        /* Shift star/avatar/name row 12px left; width compensation keeps the call column on the right aligned */
+        margin-left: -12px;
+        width: calc(100% + 12px);
+        min-width: 0;
+      }
+      /* Star button ↔ avatar circle */
+      .contact-tile-leading {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+      .contact-tile-body {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      /* Row 1: name only */
+      .contact-tile-name-row {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+      }
+      /* Typography matches list row name: text-sm font-semibold text-ink-900 + tracking */
+      .contact-tile-name {
+        flex: 1;
+        min-width: 0;
+      }
+      /* Row 2: extension pill + device label (same order/spacing as list view) */
+      .contact-tile-ext-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        flex-wrap: nowrap;
+      }
+      .contact-tile-ext-row .ext-pill {
+        box-sizing: border-box;
+        flex-shrink: 0;
+        min-height: 21px;
+        height: 21px;
+        padding: 0 10px;
+        border-radius: 9999px;
+        line-height: 21px;
+        display: inline-flex;
+        align-items: center;
+      }
+      /* “On a call…” — full-width row under main header; inset matches avatar left (see .contact-tile-status-below) */
+      .contact-tile-status-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        margin-top: 0;
+        min-width: 0;
+        width: 100%;
+      }
+      /* Same horizontal band as .contact-tile-main so busy line aligns with avatar column */
+      .contact-tile-status-below {
+        margin-top: 12px;
+        margin-left: -12px;
+        width: calc(100% + 12px);
+        padding-left: 44px;
+        box-sizing: border-box;
+        min-width: 0;
+      }
+      /* “On a call with…” handset icon — same 16×16 in list + tile */
+      svg.contact-busy-line-icon {
+        width: 16px;
+        height: 16px;
+        min-width: 16px;
+        min-height: 16px;
+        flex-shrink: 0;
+        display: block;
+      }
+      /* “On a call with…” copy — single-line ellipsis when it overflows */
+      .contact-busy-sub-text {
+        min-width: 0;
+        flex: 1 1 0%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      /* “On a call with…” — shared typography (tile uses .contact-tile-status-text too) */
+      .contact-row .contact-busy-sub-text,
+      .contact-tile-status-text {
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 16px;
+        color: #666666;
+      }
+      .contact-tile-incoming-section {
+        width: 100%;
+        border-top: 1px solid #e8e8e8;
+        padding-top: 12px;
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-sizing: border-box;
+      }
+      .contact-tile-incoming-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      /* Matches list view “Incoming Calls” row */
+      .contact-tile-incoming-label {
+        font-family: "Poppins", system-ui, sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 16px;
+        color: #4c5863;
+      }
       /* Dialpad call: idle vs digits entered */
       #callBtn {
         background-color: #e5e6e8;
@@ -234,6 +388,17 @@
       .chip:not(.chip-selected) {
         cursor: default;
       }
+      /* Unattended (All / Internal / External): check only on selected chip, before label */
+      #uaFilterChips .chip {
+        gap: 4px;
+      }
+      #uaFilterChips .chip .ua-filter-check {
+        display: none;
+        flex-shrink: 0;
+      }
+      #uaFilterChips .chip.chip-selected .ua-filter-check {
+        display: block;
+      }
       /* Sort pill — static label; hover only */
       #contactSortPill:hover {
         filter: brightness(0.97);
@@ -244,6 +409,8 @@
       }
       .line-selector-menu {
         box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+        width: max-content;
+        max-width: min(292px, calc(100vw - 24px));
       }
       /* Each nav button hosts an inner 56x56 rounded-rectangle wrapper.
          On hover, the wrapper shows the same translucent highlight as the active item. */
@@ -274,12 +441,59 @@
       .row-hover:hover .avatar-circle {
         background: #ffffff;
       }
-      /* Contact row — 72px tall, divider inset 20px from each side */
+      /* Contact row — horizontal divider inset 20px from allotted list edges */
       .contact-row {
         display: flex;
         align-items: stretch;
-        border-bottom: 1px solid #e5e6e8;
-        padding: 8px 16px;
+        border-bottom: none;
+        padding: 8px 20px;
+        position: relative;
+      }
+      .contact-row::after {
+        content: "";
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        bottom: 0;
+        height: 1px;
+        background: #e5e6e8;
+        pointer-events: none;
+      }
+      /*
+        List — name hugs text width (flex 0 1 auto); pill+device sit immediately after 8px gap.
+        Long names shrink + ellipsis; cluster does not absorb leftover horizontal space.
+      */
+      .contact-row-meta {
+        min-width: 0;
+        flex: 1 1 0%;
+        overflow: hidden;
+      }
+      .contact-row-name-line {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 8px;
+        min-width: 0;
+        width: 100%;
+      }
+      .contact-row-name-text {
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 600;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #001221;
+        letter-spacing: 0.25px;
+      }
+      .contact-row-ext-cluster {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
       }
       /* Selected tab: 2px underline + label in black, icon in primary navy */
       .tab-active {
@@ -321,6 +535,7 @@
         background-position: right 6px center;
       }
       .ext-pill {
+        flex-shrink: 0;
         background: transparent;
         color: #4c5863;
         font-family: 'Inter', system-ui, sans-serif;
@@ -332,6 +547,193 @@
         text-transform: uppercase;
         border: 1px solid #e5e6e8;
         line-height: 16px;
+      }
+      /* Device label — list name row + tile ext row (Inter headline case; truncates with … when tight) */
+      .contact-device-label {
+        min-width: 0;
+        flex: 0 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 12px;
+        font-weight: 300;
+        letter-spacing: 0.25px;
+        color: #7f888f;
+        line-height: 16px;
+      }
+      button.contact-detail-open.contact-device-label {
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 12px;
+        font-weight: 300;
+        letter-spacing: 0.25px;
+        color: #7f888f;
+        line-height: 16px;
+      }
+      /* Detailed contact card — popover (no scrim); position set in JS */
+      #contactDetailScrim {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: none;
+        pointer-events: none;
+        background: transparent;
+        box-sizing: border-box;
+      }
+      #contactDetailScrim.contact-detail-scrim--open {
+        display: block;
+      }
+      .contact-detail-card {
+        width: 220px;
+        max-width: 220px;
+        background: #fff;
+        border: 1px solid #e5e6e8;
+        border-radius: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        box-sizing: border-box;
+        max-height: min(90vh, 640px);
+        overflow-y: auto;
+        position: fixed;
+        pointer-events: auto;
+      }
+      .contact-detail-card__close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 28px;
+        height: 28px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-radius: 4px;
+      }
+      .contact-detail-card__close:hover {
+        background: #f2f2f3;
+      }
+      .contact-detail-card__header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding-top: 8px;
+        width: 100%;
+      }
+      /* Name ↔ location spacing (tighter than uniform column gap) */
+      .contact-detail-card__title-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        width: 100%;
+      }
+      .contact-detail-card__avatar-wrap {
+        position: relative;
+        width: 75px;
+        height: 75px;
+        flex-shrink: 0;
+      }
+      .contact-detail-card__avatar {
+        width: 75px;
+        height: 75px;
+        border-radius: 999px;
+        background: #f2f2f3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "Inter", system-ui, sans-serif;
+        font-weight: 400;
+        font-size: 28px;
+        color: #0b182e;
+        line-height: 1;
+      }
+      .contact-detail-card__avatar svg {
+        width: 36px;
+        height: 36px;
+      }
+      .contact-detail-card__title {
+        font-family: "Inter", system-ui, sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 1.5;
+        color: #000;
+        text-align: center;
+        margin: 0;
+      }
+      .contact-detail-card__location {
+        font-family: "Inter", system-ui, sans-serif;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 1.3;
+        color: #7f888f;
+        text-align: center;
+        margin: 0;
+      }
+      .contact-detail-card__divider {
+        height: 1px;
+        background: #e5e6e8;
+        width: 100%;
+        margin: 16px 0;
+        border: none;
+      }
+      .contact-detail-card__label {
+        font-family: "Inter", system-ui, sans-serif;
+        font-weight: 600;
+        font-size: 12px;
+        line-height: 1.15;
+        color: #000;
+        margin: 0 0 2px;
+      }
+      .contact-detail-card__value {
+        font-family: "Inter", system-ui, sans-serif;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 1.3;
+        color: #001221;
+        margin: 0;
+      }
+      .contact-detail-card__value--email {
+        color: #142b53;
+      }
+      .contact-detail-card__footer {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .contact-detail-card__device {
+        font-family: "Inter", system-ui, sans-serif;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 1.3;
+        color: #7f888f;
+      }
+      button.contact-row-name-text {
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        text-align: left;
+        font-family: "Open Sans", system-ui, sans-serif;
+        font-weight: 600;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: #001221;
+        letter-spacing: 0.25px;
+      }
+      button.contact-tile-name.contact-detail-open {
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
       }
       /* Single gradient shared across the top bar and left nav.
          Anchored to the viewport so both elements paint the same gradient
@@ -371,8 +773,83 @@
       .settings-menu-item:hover {
         background: linear-gradient(90deg, rgba(29, 62, 119, 0.08) 0%, rgba(29, 62, 119, 0.08) 100%), #fff;
       }
+      /* Phone settings left nav: default / hover / selected (Figma-aligned) */
+      .ps-settings-sidebar {
+        background: #f6f7fa;
+        padding: 12px 10px;
+        border-right: 1px solid #e5e6e8;
+        box-sizing: border-box;
+      }
+      .ps-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        max-width: 100%;
+        margin: 2px 0;
+        padding: 10px 14px;
+        border: none;
+        border-radius: 8px;
+        text-align: left;
+        cursor: pointer;
+        background: transparent;
+        box-sizing: border-box;
+        transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+        font-family: "Open Sans", system-ui, sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        letter-spacing: 0.15px;
+        color: #7f888f;
+      }
+      .ps-menu-item .ps-menu-label {
+        color: inherit;
+        font: inherit;
+        font-weight: inherit;
+      }
+      .ps-menu-item svg path {
+        fill: currentColor;
+      }
+      /* Hover matches Call transfer style for all rows; disabled buttons still don't navigate */
       .ps-menu-item:hover:not(.active) {
-        background: #e5e6e8 !important;
+        background: #e8edf5 !important;
+        color: #4c5863;
+        font-weight: 600;
+      }
+      .ps-menu-item.active {
+        background: #d1daeb !important;
+        color: #142b53;
+        font-weight: 600;
+      }
+      .ps-menu-item:disabled {
+        opacity: 1;
+        cursor: not-allowed;
+        color: #7f888f;
+      }
+      .ps-menu-item:disabled svg path {
+        fill: currentColor;
+      }
+      /* Phone settings → Contacts: Extensions display header size used for calc below */
+      #ps-panel-contacts {
+        --ps-ext-display-title-size: 14px;
+      }
+      /* Phone settings → Contacts → Extensions display section title (collapsed + expanded) */
+      .ps-ext-display-title {
+        font-family: "Open Sans", system-ui, sans-serif;
+        font-size: var(--ps-ext-display-title-size);
+        font-weight: 400;
+        color: #001221;
+        letter-spacing: 0.25px;
+        line-height: 20px;
+      }
+      /* Helper copy: exactly 2pt smaller than .ps-ext-display-title */
+      #extExpanded .ps-ext-display-help {
+        font-family: "Open Sans", system-ui, sans-serif;
+        font-size: calc(var(--ps-ext-display-title-size) - 2pt);
+        font-weight: 300;
+        color: #192936;
+        letter-spacing: 0.25px;
+        line-height: 1.35;
       }
       .ua-kebab:hover {
         background: #f2f2f3;
@@ -388,6 +865,47 @@
         background: #DCE3F0;
         border-radius: 2px;
         padding: 0 1px;
+      }
+      /* Shared console search field (Parked tab styling): idle stroke #CCCFD2, focused #7F888F */
+      .console-search-wrap {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        height: 44px;
+        padding: 8px 12px 8px 16px;
+        box-sizing: border-box;
+        border-radius: 12px;
+        border: 1px solid #cccfd2;
+        background: #fff;
+        transition: border-color 0.15s ease;
+      }
+      .console-search-wrap:focus-within {
+        border-color: #7f888f;
+      }
+      .console-search-icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+        color: #7f888f;
+      }
+      .console-search-icon path {
+        fill: currentColor;
+      }
+      .console-search-input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-family: "Open Sans", system-ui, sans-serif;
+        font-size: 16px;
+        color: #001221;
+        letter-spacing: 0.5px;
+      }
+      .console-search-input::placeholder {
+        color: #7f888f;
+        opacity: 1;
       }
       .ua-action-menu {
         position: fixed;
@@ -418,18 +936,6 @@
       }
       .ua-kebab.active {
         background: #f2f2f3;
-      }
-      .ps-menu-item:not(.active) {
-        cursor: default;
-      }
-      .ps-menu-item.active {
-        background: #dadada;
-      }
-      .ps-menu-item.active span {
-        color: #4c5863;
-      }
-      .ps-menu-item.active svg {
-        fill: #4c5863;
       }
     </style>
   </head>
@@ -650,20 +1156,32 @@
                       fill="#142B53"
                     />
                   </svg>
-                  <span id="lineSelectorLabel">TeamHub [5938]</span>
+                  <span id="lineSelectorLabel">TeamHub Extension [5938]</span>
+                  <svg
+                    id="lineSelectorChevron"
+                    class="line-selector-chevron shrink-0 transition-transform duration-150 ease-out"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <polyline points="6 9 12 15 18 9" stroke="#142B53" stroke-width="2" />
+                  </svg>
                 </button>
                 <div
                   id="lineSelectorMenu"
-                  class="line-selector-menu absolute right-0 z-50 mt-[4px] hidden w-[208px] rounded-lg border border-ink-100 bg-white py-0.5"
+                  class="line-selector-menu absolute right-0 z-50 mt-[4px] hidden inline-flex min-w-0 flex-col items-stretch rounded-lg border border-ink-100 bg-white py-0.5"
                   role="listbox"
                   aria-label="Select line"
                 >
                   <button
                     type="button"
                     role="option"
-                    class="flex w-full items-center gap-2 px-[14px] py-[7px] text-left text-sm font-semibold text-[#001221] transition-colors hover:bg-ink-50/90"
+                    class="flex min-w-0 items-center gap-2 px-[14px] py-[7px] text-left text-sm font-semibold text-[#001221] transition-colors hover:bg-ink-50/90"
                     data-line="teamhub"
-                    data-label="TeamHub [5938]"
+                    data-label="TeamHub Extension [5938]"
                     aria-selected="true"
                   >
                     <span
@@ -684,14 +1202,14 @@
                         />
                       </svg>
                     </span>
-                    <span class="whitespace-nowrap">TeamHub [5938]</span>
+                    <span class="min-w-0 flex-1 break-words leading-snug">TeamHub Extension [5938]</span>
                   </button>
                   <button
                     type="button"
                     role="option"
-                    class="flex w-full items-center gap-2 px-[14px] py-[7px] text-left text-sm font-semibold text-[#001221] transition-colors hover:bg-ink-50/90"
+                    class="flex min-w-0 items-center gap-2 px-[14px] py-[7px] text-left text-sm font-semibold text-[#001221] transition-colors hover:bg-ink-50/90"
                     data-line="hardphone"
-                    data-label="Hardphone [7743]"
+                    data-label="YeaLink CP965 [7743]"
                     aria-selected="false"
                   >
                     <span
@@ -712,19 +1230,19 @@
                         />
                       </svg>
                     </span>
-                    <span class="whitespace-nowrap">Hardphone [7743]</span>
+                    <span class="min-w-0 flex-1 break-words leading-snug">YeaLink CP965 [7743]</span>
                   </button>
                 </div>
               </div>
             </div>
             <div
               id="dialCallCardsHost"
-              class="mt-3 hidden flex justify-center"
+              class="mt-3 hidden flex w-full min-w-0 justify-center"
               role="img"
               aria-label="Active call cards"
               aria-hidden="true"
             >
-              <div class="mx-auto block h-auto w-full max-w-[302px] select-none"><svg style="cursor:default" width="302" height="380" viewBox="0 0 302 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div class="relative mx-auto block h-auto w-full min-w-0 max-w-[302px] select-none"><svg class="block h-auto w-full max-w-full" style="cursor:default" viewBox="0 0 302 380" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
 <rect width="302" height="24" rx="4" fill="#CCCFD2"/>
 <path d="M17.502 17.098C16.5967 17.098 15.7707 16.888 15.024 16.468C14.2773 16.0387 13.6847 15.446 13.246 14.69C12.8167 13.9247 12.602 13.066 12.602 12.114C12.602 11.162 12.8167 10.308 13.246 9.552C13.6847 8.78667 14.2773 8.194 15.024 7.774C15.7707 7.34467 16.5967 7.13 17.502 7.13C18.4167 7.13 19.2473 7.34467 19.994 7.774C20.7407 8.194 21.3287 8.782 21.758 9.538C22.1873 10.294 22.402 11.1527 22.402 12.114C22.402 13.0753 22.1873 13.934 21.758 14.69C21.3287 15.446 20.7407 16.0387 19.994 16.468C19.2473 16.888 18.4167 17.098 17.502 17.098ZM17.502 15.992C18.1833 15.992 18.7947 15.8333 19.336 15.516C19.8867 15.1987 20.316 14.746 20.624 14.158C20.9413 13.57 21.1 12.8887 21.1 12.114C21.1 11.33 20.9413 10.6487 20.624 10.07C20.316 9.482 19.8913 9.02933 19.35 8.712C18.8087 8.39467 18.1927 8.236 17.502 8.236C16.8113 8.236 16.1953 8.39467 15.654 8.712C15.1127 9.02933 14.6833 9.482 14.366 10.07C14.058 10.6487 13.904 11.33 13.904 12.114C13.904 12.8887 14.058 13.57 14.366 14.158C14.6833 14.746 15.1127 15.1987 15.654 15.516C16.2047 15.8333 16.8207 15.992 17.502 15.992ZM28.0719 9.188C29.0052 9.188 29.7612 9.47267 30.3399 10.042C30.9185 10.602 31.2079 11.414 31.2079 12.478V17H29.9479V12.66C29.9479 11.8947 29.7565 11.3113 29.3739 10.91C28.9912 10.4993 28.4685 10.294 27.8059 10.294C27.1339 10.294 26.5972 10.504 26.1959 10.924C25.8039 11.344 25.6079 11.9553 25.6079 12.758V17H24.3339V9.328H25.6079V10.42C25.8599 10.028 26.2005 9.72467 26.6299 9.51C27.0685 9.29533 27.5492 9.188 28.0719 9.188ZM36.7029 9.202C37.3656 9.202 37.9443 9.34667 38.4389 9.636C38.9429 9.92533 39.3163 10.2893 39.5589 10.728V9.328H40.8469V17.168C40.8469 17.868 40.6976 18.4887 40.3989 19.03C40.1003 19.5807 39.6709 20.01 39.1109 20.318C38.5603 20.626 37.9163 20.78 37.1789 20.78C36.1709 20.78 35.3309 20.542 34.6589 20.066C33.9869 19.59 33.5903 18.9413 33.4689 18.12H34.7289C34.8689 18.5867 35.1583 18.96 35.5969 19.24C36.0356 19.5293 36.5629 19.674 37.1789 19.674C37.8789 19.674 38.4483 19.4547 38.8869 19.016C39.3349 18.5773 39.5589 17.9613 39.5589 17.168V15.558C39.3069 16.006 38.9336 16.3793 38.4389 16.678C37.9443 16.9767 37.3656 17.126 36.7029 17.126C36.0216 17.126 35.4009 16.958 34.8409 16.622C34.2903 16.286 33.8563 15.8147 33.5389 15.208C33.2216 14.6013 33.0629 13.9107 33.0629 13.136C33.0629 12.352 33.2216 11.666 33.5389 11.078C33.8563 10.4807 34.2903 10.0187 34.8409 9.692C35.4009 9.36533 36.0216 9.202 36.7029 9.202ZM39.5589 13.15C39.5589 12.5713 39.4423 12.0673 39.2089 11.638C38.9756 11.2087 38.6583 10.882 38.2569 10.658C37.8649 10.4247 37.4309 10.308 36.9549 10.308C36.4789 10.308 36.0449 10.42 35.6529 10.644C35.2609 10.868 34.9483 11.1947 34.7149 11.624C34.4816 12.0533 34.3649 12.5573 34.3649 13.136C34.3649 13.724 34.4816 14.2373 34.7149 14.676C34.9483 15.1053 35.2609 15.4367 35.6529 15.67C36.0449 15.894 36.4789 16.006 36.9549 16.006C37.4309 16.006 37.8649 15.894 38.2569 15.67C38.6583 15.4367 38.9756 15.1053 39.2089 14.676C39.4423 14.2373 39.5589 13.7287 39.5589 13.15ZM46.5959 17.126C45.8772 17.126 45.2239 16.9627 44.6359 16.636C44.0572 16.3093 43.5999 15.8473 43.2639 15.25C42.9372 14.6433 42.7739 13.9433 42.7739 13.15C42.7739 12.366 42.9419 11.6753 43.2779 11.078C43.6232 10.4713 44.0899 10.0093 44.6779 9.692C45.2659 9.36533 45.9239 9.202 46.6519 9.202C47.3799 9.202 48.0379 9.36533 48.6259 9.692C49.2139 10.0093 49.6759 10.4667 50.0119 11.064C50.3572 11.6613 50.5299 12.3567 50.5299 13.15C50.5299 13.9433 50.3525 14.6433 49.9979 15.25C49.6525 15.8473 49.1812 16.3093 48.5839 16.636C47.9865 16.9627 47.3239 17.126 46.5959 17.126ZM46.5959 16.006C47.0532 16.006 47.4825 15.8987 47.8839 15.684C48.2852 15.4693 48.6072 15.1473 48.8499 14.718C49.1019 14.2887 49.2279 13.766 49.2279 13.15C49.2279 12.534 49.1065 12.0113 48.8639 11.582C48.6212 11.1527 48.3039 10.8353 47.9119 10.63C47.5199 10.4153 47.0952 10.308 46.6379 10.308C46.1712 10.308 45.7419 10.4153 45.3499 10.63C44.9672 10.8353 44.6592 11.1527 44.4259 11.582C44.1925 12.0113 44.0759 12.534 44.0759 13.15C44.0759 13.7753 44.1879 14.3027 44.4119 14.732C44.6452 15.1613 44.9532 15.4833 45.3359 15.698C45.7185 15.9033 46.1385 16.006 46.5959 16.006ZM53.113 8.082C52.8703 8.082 52.665 7.998 52.497 7.83C52.329 7.662 52.245 7.45667 52.245 7.214C52.245 6.97133 52.329 6.766 52.497 6.598C52.665 6.43 52.8703 6.346 53.113 6.346C53.3463 6.346 53.5423 6.43 53.701 6.598C53.869 6.766 53.953 6.97133 53.953 7.214C53.953 7.45667 53.869 7.662 53.701 7.83C53.5423 7.998 53.3463 8.082 53.113 8.082ZM53.729 9.328V17H52.455V9.328H53.729ZM59.8883 9.188C60.8216 9.188 61.5776 9.47267 62.1563 10.042C62.7349 10.602 63.0243 11.414 63.0243 12.478V17H61.7643V12.66C61.7643 11.8947 61.5729 11.3113 61.1903 10.91C60.8076 10.4993 60.2849 10.294 59.6223 10.294C58.9503 10.294 58.4136 10.504 58.0123 10.924C57.6203 11.344 57.4243 11.9553 57.4243 12.758V17H56.1503V9.328H57.4243V10.42C57.6763 10.028 58.0169 9.72467 58.4463 9.51C58.8849 9.29533 59.3656 9.188 59.8883 9.188ZM68.5193 9.202C69.182 9.202 69.7607 9.34667 70.2553 9.636C70.7593 9.92533 71.1327 10.2893 71.3753 10.728V9.328H72.6633V17.168C72.6633 17.868 72.514 18.4887 72.2153 19.03C71.9167 19.5807 71.4873 20.01 70.9273 20.318C70.3767 20.626 69.7327 20.78 68.9953 20.78C67.9873 20.78 67.1473 20.542 66.4753 20.066C65.8033 19.59 65.4067 18.9413 65.2853 18.12H66.5453C66.6853 18.5867 66.9747 18.96 67.4133 19.24C67.852 19.5293 68.3793 19.674 68.9953 19.674C69.6953 19.674 70.2647 19.4547 70.7033 19.016C71.1513 18.5773 71.3753 17.9613 71.3753 17.168V15.558C71.1233 16.006 70.75 16.3793 70.2553 16.678C69.7607 16.9767 69.182 17.126 68.5193 17.126C67.838 17.126 67.2173 16.958 66.6573 16.622C66.1067 16.286 65.6727 15.8147 65.3553 15.208C65.038 14.6013 64.8793 13.9107 64.8793 13.136C64.8793 12.352 65.038 11.666 65.3553 11.078C65.6727 10.4807 66.1067 10.0187 66.6573 9.692C67.2173 9.36533 67.838 9.202 68.5193 9.202ZM71.3753 13.15C71.3753 12.5713 71.2587 12.0673 71.0253 11.638C70.792 11.2087 70.4747 10.882 70.0733 10.658C69.6813 10.4247 69.2473 10.308 68.7713 10.308C68.2953 10.308 67.8613 10.42 67.4693 10.644C67.0773 10.868 66.7647 11.1947 66.5313 11.624C66.298 12.0533 66.1813 12.5573 66.1813 13.136C66.1813 13.724 66.298 14.2373 66.5313 14.676C66.7647 15.1053 67.0773 15.4367 67.4693 15.67C67.8613 15.894 68.2953 16.006 68.7713 16.006C69.2473 16.006 69.6813 15.894 70.0733 15.67C70.4747 15.4367 70.792 15.1053 71.0253 14.676C71.2587 14.2373 71.3753 13.7287 71.3753 13.15ZM78.5727 12.114C78.5727 11.162 78.7874 10.308 79.2167 9.552C79.646 8.78667 80.2294 8.18933 80.9667 7.76C81.7134 7.33067 82.5394 7.116 83.4447 7.116C84.5087 7.116 85.4374 7.37267 86.2307 7.886C87.024 8.39933 87.6027 9.12733 87.9667 10.07H86.4407C86.17 9.482 85.778 9.02933 85.2647 8.712C84.7607 8.39467 84.154 8.236 83.4447 8.236C82.7634 8.236 82.152 8.39467 81.6107 8.712C81.0694 9.02933 80.6447 9.482 80.3367 10.07C80.0287 10.6487 79.8747 11.33 79.8747 12.114C79.8747 12.8887 80.0287 13.57 80.3367 14.158C80.6447 14.7367 81.0694 15.1847 81.6107 15.502C82.152 15.8193 82.7634 15.978 83.4447 15.978C84.154 15.978 84.7607 15.824 85.2647 15.516C85.778 15.1987 86.17 14.746 86.4407 14.158H87.9667C87.6027 15.0913 87.024 15.8147 86.2307 16.328C85.4374 16.832 84.5087 17.084 83.4447 17.084C82.5394 17.084 81.7134 16.874 80.9667 16.454C80.2294 16.0247 79.646 15.432 79.2167 14.676C78.7874 13.92 78.5727 13.066 78.5727 12.114ZM89.6372 13.136C89.6372 12.352 89.7958 11.666 90.1132 11.078C90.4305 10.4807 90.8645 10.0187 91.4152 9.692C91.9752 9.36533 92.5958 9.202 93.2772 9.202C93.9492 9.202 94.5325 9.34667 95.0272 9.636C95.5218 9.92533 95.8905 10.2893 96.1332 10.728V9.328H97.4212V17H96.1332V15.572C95.8812 16.02 95.5032 16.3933 94.9992 16.692C94.5045 16.9813 93.9258 17.126 93.2632 17.126C92.5818 17.126 91.9658 16.958 91.4152 16.622C90.8645 16.286 90.4305 15.8147 90.1132 15.208C89.7958 14.6013 89.6372 13.9107 89.6372 13.136ZM96.1332 13.15C96.1332 12.5713 96.0165 12.0673 95.7832 11.638C95.5498 11.2087 95.2325 10.882 94.8312 10.658C94.4392 10.4247 94.0052 10.308 93.5292 10.308C93.0532 10.308 92.6192 10.42 92.2272 10.644C91.8352 10.868 91.5225 11.1947 91.2892 11.624C91.0558 12.0533 90.9392 12.5573 90.9392 13.136C90.9392 13.724 91.0558 14.2373 91.2892 14.676C91.5225 15.1053 91.8352 15.4367 92.2272 15.67C92.6192 15.894 93.0532 16.006 93.5292 16.006C94.0052 16.006 94.4392 15.894 94.8312 15.67C95.2325 15.4367 95.5498 15.1053 95.7832 14.676C96.0165 14.2373 96.1332 13.7287 96.1332 13.15ZM101.098 6.64V17H99.8241V6.64H101.098ZM104.793 6.64V17H103.519V6.64H104.793ZM109.931 17.126C109.343 17.126 108.815 17.028 108.349 16.832C107.882 16.6267 107.513 16.3467 107.243 15.992C106.972 15.628 106.823 15.2127 106.795 14.746H108.111C108.148 15.1287 108.325 15.4413 108.643 15.684C108.969 15.9267 109.394 16.048 109.917 16.048C110.402 16.048 110.785 15.9407 111.065 15.726C111.345 15.5113 111.485 15.2407 111.485 14.914C111.485 14.578 111.335 14.3307 111.037 14.172C110.738 14.004 110.276 13.8407 109.651 13.682C109.081 13.5327 108.615 13.3833 108.251 13.234C107.896 13.0753 107.588 12.8467 107.327 12.548C107.075 12.24 106.949 11.8387 106.949 11.344C106.949 10.952 107.065 10.5927 107.299 10.266C107.532 9.93933 107.863 9.68267 108.293 9.496C108.722 9.3 109.212 9.202 109.763 9.202C110.612 9.202 111.298 9.41667 111.821 9.846C112.343 10.2753 112.623 10.8633 112.661 11.61H111.387C111.359 11.2087 111.195 10.8867 110.897 10.644C110.607 10.4013 110.215 10.28 109.721 10.28C109.263 10.28 108.899 10.378 108.629 10.574C108.358 10.77 108.223 11.0267 108.223 11.344C108.223 11.596 108.302 11.806 108.461 11.974C108.629 12.1327 108.834 12.2633 109.077 12.366C109.329 12.4593 109.674 12.5667 110.113 12.688C110.663 12.8373 111.111 12.9867 111.457 13.136C111.802 13.276 112.096 13.4907 112.339 13.78C112.591 14.0693 112.721 14.4473 112.731 14.914C112.731 15.334 112.614 15.712 112.381 16.048C112.147 16.384 111.816 16.65 111.387 16.846C110.967 17.0327 110.481 17.126 109.931 17.126Z" fill="black"/>
 <g id="topCallCard">
@@ -766,20 +1284,18 @@
 <rect y="260" width="302" height="24" rx="4" fill="#CCCFD2"/>
 <path d="M17.502 277.098C16.5967 277.098 15.7707 276.888 15.024 276.468C14.2773 276.039 13.6847 275.446 13.246 274.69C12.8167 273.925 12.602 273.066 12.602 272.114C12.602 271.162 12.8167 270.308 13.246 269.552C13.6847 268.787 14.2773 268.194 15.024 267.774C15.7707 267.345 16.5967 267.13 17.502 267.13C18.4167 267.13 19.2473 267.345 19.994 267.774C20.7407 268.194 21.3287 268.782 21.758 269.538C22.1873 270.294 22.402 271.153 22.402 272.114C22.402 273.075 22.1873 273.934 21.758 274.69C21.3287 275.446 20.7407 276.039 19.994 276.468C19.2473 276.888 18.4167 277.098 17.502 277.098ZM17.502 275.992C18.1833 275.992 18.7947 275.833 19.336 275.516C19.8867 275.199 20.316 274.746 20.624 274.158C20.9413 273.57 21.1 272.889 21.1 272.114C21.1 271.33 20.9413 270.649 20.624 270.07C20.316 269.482 19.8913 269.029 19.35 268.712C18.8087 268.395 18.1927 268.236 17.502 268.236C16.8113 268.236 16.1953 268.395 15.654 268.712C15.1127 269.029 14.6833 269.482 14.366 270.07C14.058 270.649 13.904 271.33 13.904 272.114C13.904 272.889 14.058 273.57 14.366 274.158C14.6833 274.746 15.1127 275.199 15.654 275.516C16.2047 275.833 16.8207 275.992 17.502 275.992ZM28.0719 269.188C29.0052 269.188 29.7612 269.473 30.3399 270.042C30.9185 270.602 31.2079 271.414 31.2079 272.478V277H29.9479V272.66C29.9479 271.895 29.7565 271.311 29.3739 270.91C28.9912 270.499 28.4685 270.294 27.8059 270.294C27.1339 270.294 26.5972 270.504 26.1959 270.924C25.8039 271.344 25.6079 271.955 25.6079 272.758V277H24.3339V269.328H25.6079V270.42C25.8599 270.028 26.2005 269.725 26.6299 269.51C27.0685 269.295 27.5492 269.188 28.0719 269.188ZM45.0394 267.242V277H43.7654V272.576H38.7954V277H37.5214V267.242H38.7954V271.526H43.7654V267.242H45.0394ZM50.8107 277.126C50.0921 277.126 49.4387 276.963 48.8507 276.636C48.2721 276.309 47.8147 275.847 47.4787 275.25C47.1521 274.643 46.9887 273.943 46.9887 273.15C46.9887 272.366 47.1567 271.675 47.4927 271.078C47.8381 270.471 48.3047 270.009 48.8927 269.692C49.4807 269.365 50.1387 269.202 50.8667 269.202C51.5947 269.202 52.2527 269.365 52.8407 269.692C53.4287 270.009 53.8907 270.467 54.2267 271.064C54.5721 271.661 54.7447 272.357 54.7447 273.15C54.7447 273.943 54.5674 274.643 54.2127 275.25C53.8674 275.847 53.3961 276.309 52.7987 276.636C52.2014 276.963 51.5387 277.126 50.8107 277.126ZM50.8107 276.006C51.2681 276.006 51.6974 275.899 52.0987 275.684C52.5001 275.469 52.8221 275.147 53.0647 274.718C53.3167 274.289 53.4427 273.766 53.4427 273.15C53.4427 272.534 53.3214 272.011 53.0787 271.582C52.8361 271.153 52.5187 270.835 52.1267 270.63C51.7347 270.415 51.3101 270.308 50.8527 270.308C50.3861 270.308 49.9567 270.415 49.5647 270.63C49.1821 270.835 48.8741 271.153 48.6407 271.582C48.4074 272.011 48.2907 272.534 48.2907 273.15C48.2907 273.775 48.4027 274.303 48.6267 274.732C48.8601 275.161 49.1681 275.483 49.5507 275.698C49.9334 275.903 50.3534 276.006 50.8107 276.006ZM57.9438 266.64V277H56.6698V266.64H57.9438ZM59.8891 273.136C59.8891 272.352 60.0478 271.666 60.3651 271.078C60.6824 270.481 61.1164 270.019 61.6671 269.692C62.2271 269.365 62.8524 269.202 63.5431 269.202C64.1404 269.202 64.6958 269.342 65.2091 269.622C65.7224 269.893 66.1144 270.252 66.3851 270.7V266.64H67.6731V277H66.3851V275.558C66.1331 276.015 65.7598 276.393 65.2651 276.692C64.7704 276.981 64.1918 277.126 63.5291 277.126C62.8478 277.126 62.2271 276.958 61.6671 276.622C61.1164 276.286 60.6824 275.815 60.3651 275.208C60.0478 274.601 59.8891 273.911 59.8891 273.136ZM66.3851 273.15C66.3851 272.571 66.2684 272.067 66.0351 271.638C65.8018 271.209 65.4844 270.882 65.0831 270.658C64.6911 270.425 64.2571 270.308 63.7811 270.308C63.3051 270.308 62.8711 270.42 62.4791 270.644C62.0871 270.868 61.7744 271.195 61.5411 271.624C61.3078 272.053 61.1911 272.557 61.1911 273.136C61.1911 273.724 61.3078 274.237 61.5411 274.676C61.7744 275.105 62.0871 275.437 62.4791 275.67C62.8711 275.894 63.3051 276.006 63.7811 276.006C64.2571 276.006 64.6911 275.894 65.0831 275.67C65.4844 275.437 65.8018 275.105 66.0351 274.676C66.2684 274.237 66.3851 273.729 66.3851 273.15Z" fill="black"/>
 <path d="M293 274.5L288 269.5L283 274.5" stroke="#485366" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<rect y="292" width="294" height="40" rx="8" fill="#001221"/>
+<rect y="292" width="302" height="40" rx="8" fill="#001221"/>
 <path d="M13.4318 311.909C13.4318 310.663 13.5959 309.516 13.924 308.469C14.2521 307.421 14.7311 306.455 15.3608 305.57H16.723C16.4777 305.898 16.2491 306.301 16.0369 306.778C15.8248 307.256 15.6392 307.779 15.4801 308.349C15.321 308.916 15.1967 309.504 15.1072 310.114C15.0178 310.721 14.973 311.319 14.973 311.909C14.973 312.698 15.0509 313.497 15.2067 314.305C15.3625 315.114 15.5729 315.865 15.8381 316.558C16.1032 317.25 16.3982 317.815 16.723 318.253H15.3608C14.7311 317.368 14.2521 316.402 13.924 315.354C13.5959 314.307 13.4318 313.159 13.4318 311.909ZM18.0566 315.011V313.768L22.4565 306.818H23.4359V308.648H22.8145L19.6674 313.629V313.709H25.698V315.011H18.0566ZM22.8841 317V314.634L22.894 314.067V306.818H24.3507V317H22.8841ZM31.1568 306.818V317H29.6156V308.359H29.5559L27.1199 309.95V308.479L29.6603 306.818H31.1568ZM37.4657 317.139C37.0117 317.133 36.5642 317.05 36.1234 316.891C35.6859 316.732 35.2882 316.466 34.9302 316.095C34.5723 315.724 34.2856 315.225 34.0701 314.599C33.858 313.972 33.752 313.19 33.752 312.252C33.752 311.364 33.8398 310.575 34.0154 309.886C34.1944 309.196 34.4513 308.615 34.786 308.141C35.1208 307.663 35.5252 307.3 35.9991 307.052C36.4731 306.803 37.005 306.679 37.595 306.679C38.2015 306.679 38.7401 306.798 39.2108 307.037C39.6814 307.276 40.0626 307.605 40.3542 308.026C40.6492 308.447 40.8365 308.926 40.916 309.463H39.3997C39.2969 309.039 39.0931 308.692 38.7882 308.424C38.4833 308.156 38.0855 308.021 37.595 308.021C36.8493 308.021 36.2676 308.346 35.85 308.996C35.4357 309.645 35.2269 310.549 35.2235 311.705H35.2981C35.4738 311.417 35.6892 311.172 35.9444 310.969C36.2029 310.764 36.4913 310.607 36.8095 310.497C37.131 310.384 37.469 310.328 37.8237 310.328C38.4136 310.328 38.9473 310.472 39.4245 310.761C39.9051 311.046 40.2879 311.44 40.573 311.944C40.858 312.448 41.0005 313.024 41.0005 313.674C41.0005 314.324 40.853 314.912 40.5581 315.439C40.2664 315.966 39.8554 316.384 39.3251 316.692C38.7948 316.997 38.175 317.146 37.4657 317.139ZM37.4608 315.847C37.8519 315.847 38.2015 315.75 38.5098 315.558C38.818 315.366 39.0616 315.107 39.2406 314.783C39.4196 314.458 39.5091 314.095 39.5091 313.694C39.5091 313.303 39.4212 312.946 39.2456 312.625C39.0732 312.304 38.8346 312.048 38.5297 311.859C38.228 311.67 37.8833 311.576 37.4956 311.576C37.2006 311.576 36.9271 311.632 36.6752 311.745C36.4267 311.858 36.2079 312.013 36.019 312.212C35.8301 312.411 35.6809 312.64 35.5716 312.898C35.4655 313.154 35.4125 313.424 35.4125 313.709C35.4125 314.09 35.5003 314.443 35.676 314.768C35.8549 315.093 36.0985 315.354 36.4068 315.553C36.7183 315.749 37.0697 315.847 37.4608 315.847ZM45.69 311.909C45.69 313.159 45.5259 314.307 45.1978 315.354C44.8697 316.402 44.3907 317.368 43.761 318.253H42.3988C42.6441 317.925 42.8728 317.522 43.0849 317.045C43.297 316.567 43.4826 316.045 43.6417 315.479C43.8008 314.909 43.9251 314.319 44.0146 313.709C44.104 313.099 44.1488 312.499 44.1488 311.909C44.1488 311.124 44.0709 310.326 43.9151 309.518C43.7594 308.709 43.5489 307.958 43.2837 307.266C43.0186 306.573 42.7236 306.008 42.3988 305.57H43.761C44.3907 306.455 44.8697 307.421 45.1978 308.469C45.5259 309.516 45.69 310.663 45.69 311.909ZM52.1506 317L56.5952 308.21V308.136H51.4545V306.818H58.1861V308.18L53.7564 317H52.1506ZM63.2509 317.139C62.7968 317.133 62.3494 317.05 61.9086 316.891C61.4711 316.732 61.0733 316.466 60.7154 316.095C60.3574 315.724 60.0707 315.225 59.8553 314.599C59.6432 313.972 59.5371 313.19 59.5371 312.252C59.5371 311.364 59.6249 310.575 59.8006 309.886C59.9796 309.196 60.2364 308.615 60.5712 308.141C60.906 307.663 61.3103 307.3 61.7843 307.052C62.2582 306.803 62.7902 306.679 63.3801 306.679C63.9867 306.679 64.5253 306.798 64.9959 307.037C65.4666 307.276 65.8477 307.605 66.1394 308.026C66.4344 308.447 66.6216 308.926 66.7012 309.463H65.1848C65.0821 309.039 64.8783 308.692 64.5733 308.424C64.2684 308.156 63.8707 308.021 63.3801 308.021C62.6344 308.021 62.0527 308.346 61.6351 308.996C61.2208 309.645 61.012 310.549 61.0087 311.705H61.0833C61.2589 311.417 61.4744 311.172 61.7296 310.969C61.9881 310.764 62.2765 310.607 62.5946 310.497C62.9161 310.384 63.2542 310.328 63.6088 310.328C64.1988 310.328 64.7324 310.472 65.2097 310.761C65.6903 311.046 66.0731 311.44 66.3581 311.944C66.6432 312.448 66.7857 313.024 66.7857 313.674C66.7857 314.324 66.6382 314.912 66.3432 315.439C66.0516 315.966 65.6406 316.384 65.1103 316.692C64.58 316.997 63.9602 317.146 63.2509 317.139ZM63.2459 315.847C63.637 315.847 63.9867 315.75 64.2949 315.558C64.6032 315.366 64.8468 315.107 65.0257 314.783C65.2047 314.458 65.2942 314.095 65.2942 313.694C65.2942 313.303 65.2064 312.946 65.0307 312.625C64.8584 312.304 64.6197 312.048 64.3148 311.859C64.0132 311.67 63.6685 311.576 63.2807 311.576C62.9857 311.576 62.7123 311.632 62.4604 311.745C62.2118 311.858 61.9931 312.013 61.8042 312.212C61.6152 312.411 61.4661 312.64 61.3567 312.898C61.2507 313.154 61.1976 313.424 61.1976 313.709C61.1976 314.09 61.2855 314.443 61.4611 314.768C61.6401 315.093 61.8837 315.354 62.1919 315.553C62.5035 315.749 62.8548 315.847 63.2459 315.847ZM72.1413 317.139C71.4586 317.139 70.8487 317.022 70.3118 316.786C69.7782 316.551 69.3556 316.224 69.044 315.807C68.7358 315.386 68.5701 314.899 68.5469 314.345H70.108C70.1278 314.647 70.2289 314.909 70.4112 315.131C70.5968 315.349 70.8388 315.518 71.1371 315.638C71.4354 315.757 71.7668 315.817 72.1314 315.817C72.5324 315.817 72.8871 315.747 73.1953 315.608C73.5069 315.469 73.7505 315.275 73.9261 315.026C74.1018 314.774 74.1896 314.484 74.1896 314.156C74.1896 313.815 74.1018 313.515 73.9261 313.256C73.7538 312.995 73.5002 312.789 73.1655 312.64C72.834 312.491 72.433 312.416 71.9624 312.416H71.1023V311.163H71.9624C72.3402 311.163 72.6716 311.095 72.9567 310.96C73.245 310.824 73.4704 310.635 73.6328 310.393C73.7952 310.147 73.8764 309.861 73.8764 309.533C73.8764 309.218 73.8052 308.944 73.6626 308.712C73.5234 308.477 73.3246 308.293 73.0661 308.161C72.8108 308.028 72.5092 307.962 72.1612 307.962C71.8298 307.962 71.5199 308.023 71.2315 308.146C70.9465 308.265 70.7145 308.437 70.5355 308.663C70.3565 308.885 70.2604 309.152 70.2472 309.463H68.7607C68.7772 308.913 68.9396 308.429 69.2479 308.011C69.5594 307.594 69.9704 307.267 70.4808 307.032C70.9912 306.797 71.558 306.679 72.1811 306.679C72.834 306.679 73.3975 306.807 73.8714 307.062C74.3487 307.314 74.7166 307.65 74.9751 308.071C75.237 308.492 75.3662 308.953 75.3629 309.453C75.3662 310.023 75.2071 310.507 74.8857 310.905C74.5675 311.303 74.1432 311.569 73.6129 311.705V311.785C74.2891 311.888 74.8127 312.156 75.1839 312.59C75.5585 313.024 75.7441 313.563 75.7408 314.206C75.7441 314.766 75.5883 315.268 75.2734 315.712C74.9619 316.156 74.536 316.506 73.9957 316.761C73.4555 317.013 72.8374 317.139 72.1413 317.139ZM81.0604 317.139C80.3478 317.139 79.718 317.017 79.1712 316.771C78.6276 316.526 78.2017 316.188 77.8935 315.757C77.5852 315.326 77.4328 314.836 77.4361 314.286C77.4328 313.855 77.5206 313.459 77.6996 313.097C77.8819 312.733 78.1288 312.429 78.4403 312.188C78.7519 311.942 79.0999 311.786 79.4844 311.72V311.661C78.9773 311.538 78.5713 311.266 78.2663 310.845C77.9614 310.424 77.8106 309.94 77.8139 309.393C77.8106 308.873 77.9482 308.409 78.2266 308.001C78.5083 307.59 78.8944 307.267 79.3849 307.032C79.8755 306.797 80.4339 306.679 81.0604 306.679C81.6802 306.679 82.2337 306.798 82.7209 307.037C83.2114 307.272 83.5975 307.595 83.8793 308.006C84.161 308.414 84.3035 308.876 84.3068 309.393C84.3035 309.94 84.1477 310.424 83.8395 310.845C83.5313 311.266 83.1302 311.538 82.6364 311.661V311.72C83.0175 311.786 83.3606 311.942 83.6655 312.188C83.9737 312.429 84.219 312.733 84.4013 313.097C84.5869 313.459 84.6813 313.855 84.6847 314.286C84.6813 314.836 84.5256 315.326 84.2173 315.757C83.9091 316.188 83.4815 316.526 82.9347 316.771C82.3911 317.017 81.7663 317.139 81.0604 317.139ZM81.0604 315.881C81.4813 315.881 81.8459 315.812 82.1541 315.673C82.4624 315.53 82.701 315.333 82.87 315.081C83.0391 314.826 83.1252 314.527 83.1286 314.186C83.1252 313.831 83.0324 313.518 82.8501 313.246C82.6712 312.975 82.4276 312.761 82.1193 312.605C81.8111 312.449 81.4581 312.371 81.0604 312.371C80.6593 312.371 80.303 312.449 79.9915 312.605C79.6799 312.761 79.4347 312.975 79.2557 313.246C79.0767 313.518 78.9889 313.831 78.9922 314.186C78.9889 314.527 79.0701 314.826 79.2358 315.081C79.4048 315.333 79.6451 315.53 79.9567 315.673C80.2682 315.812 80.6361 315.881 81.0604 315.881ZM81.0604 311.143C81.3984 311.143 81.6984 311.076 81.9602 310.94C82.2221 310.804 82.4276 310.615 82.5767 310.373C82.7292 310.131 82.8071 309.848 82.8104 309.523C82.8071 309.205 82.7308 308.926 82.5817 308.688C82.4358 308.449 82.232 308.265 81.9702 308.136C81.7083 308.003 81.4051 307.937 81.0604 307.937C80.709 307.937 80.4008 308.003 80.1357 308.136C79.8738 308.265 79.67 308.449 79.5241 308.688C79.3783 308.926 79.3071 309.205 79.3104 309.523C79.3071 309.848 79.38 310.131 79.5291 310.373C79.6783 310.615 79.8838 310.804 80.1456 310.94C80.4107 311.076 80.7157 311.143 81.0604 311.143ZM90.0105 317.169C89.225 317.166 88.5538 316.959 87.997 316.548C87.4402 316.137 87.0143 315.538 86.7193 314.753C86.4243 313.967 86.2768 313.021 86.2768 311.914C86.2768 310.81 86.4243 309.867 86.7193 309.085C87.0176 308.303 87.4451 307.706 88.002 307.295C88.5621 306.884 89.2316 306.679 90.0105 306.679C90.7894 306.679 91.4572 306.886 92.014 307.3C92.5708 307.711 92.9967 308.308 93.2917 309.09C93.59 309.869 93.7392 310.81 93.7392 311.914C93.7392 313.024 93.5917 313.972 93.2967 314.758C93.0017 315.54 92.5758 316.138 92.019 316.553C91.4622 316.964 90.7927 317.169 90.0105 317.169ZM90.0105 315.842C90.6999 315.842 91.2385 315.505 91.6262 314.832C92.0173 314.16 92.2129 313.187 92.2129 311.914C92.2129 311.069 92.1234 310.355 91.9444 309.771C91.7688 309.185 91.5152 308.741 91.1838 308.439C90.8556 308.134 90.4645 307.982 90.0105 307.982C89.3244 307.982 88.7858 308.32 88.3947 308.996C88.0036 309.672 87.8064 310.645 87.8031 311.914C87.8031 312.763 87.8909 313.48 88.0666 314.067C88.2456 314.65 88.4991 315.093 88.8272 315.394C89.1554 315.692 89.5498 315.842 90.0105 315.842ZM98.8885 306.679C99.3426 306.682 99.79 306.765 100.231 306.928C100.672 307.09 101.069 307.355 101.424 307.723C101.782 308.091 102.067 308.588 102.279 309.214C102.495 309.838 102.604 310.613 102.607 311.541C102.607 312.433 102.518 313.227 102.339 313.923C102.16 314.615 101.903 315.2 101.568 315.678C101.237 316.155 100.834 316.518 100.36 316.766C99.8861 317.015 99.3525 317.139 98.7592 317.139C98.1527 317.139 97.6141 317.02 97.1435 316.781C96.6728 316.543 96.29 316.213 95.995 315.792C95.7 315.368 95.5161 314.88 95.4432 314.33H96.9595C97.0589 314.768 97.2611 315.122 97.5661 315.394C97.8743 315.663 98.272 315.797 98.7592 315.797C99.505 315.797 100.087 315.472 100.504 314.822C100.922 314.17 101.132 313.258 101.136 312.088H101.056C100.884 312.373 100.668 312.618 100.41 312.824C100.155 313.029 99.8679 313.188 99.5497 313.301C99.2315 313.414 98.8918 313.47 98.5305 313.47C97.9439 313.47 97.4103 313.326 96.9297 313.038C96.4491 312.749 96.0663 312.353 95.7812 311.849C95.4962 311.346 95.3537 310.771 95.3537 310.124C95.3537 309.481 95.4995 308.898 95.7912 308.374C96.0862 307.851 96.4972 307.436 97.0241 307.131C97.5545 306.823 98.1759 306.672 98.8885 306.679ZM98.8935 307.972C98.5057 307.972 98.156 308.068 97.8445 308.26C97.5362 308.449 97.2926 308.706 97.1136 309.031C96.9347 309.352 96.8452 309.71 96.8452 310.104C96.8452 310.499 96.9313 310.857 97.1037 311.178C97.2794 311.496 97.518 311.75 97.8196 311.939C98.1245 312.125 98.4725 312.217 98.8636 312.217C99.1553 312.217 99.4271 312.161 99.679 312.048C99.9309 311.936 100.151 311.78 100.34 311.581C100.529 311.379 100.677 311.15 100.783 310.895C100.889 310.64 100.942 310.371 100.942 310.089C100.942 309.715 100.852 309.367 100.673 309.045C100.498 308.724 100.256 308.465 99.9474 308.27C99.6392 308.071 99.2879 307.972 98.8935 307.972ZM107.844 317.139C107.131 317.139 106.501 317.017 105.954 316.771C105.411 316.526 104.985 316.188 104.677 315.757C104.368 315.326 104.216 314.836 104.219 314.286C104.216 313.855 104.304 313.459 104.483 313.097C104.665 312.733 104.912 312.429 105.224 312.188C105.535 311.942 105.883 311.786 106.268 311.72V311.661C105.76 311.538 105.354 311.266 105.05 310.845C104.745 310.424 104.594 309.94 104.597 309.393C104.594 308.873 104.731 308.409 105.01 308.001C105.291 307.59 105.678 307.267 106.168 307.032C106.659 306.797 107.217 306.679 107.844 306.679C108.463 306.679 109.017 306.798 109.504 307.037C109.995 307.272 110.381 307.595 110.662 308.006C110.944 308.414 111.087 308.876 111.09 309.393C111.087 309.94 110.931 310.424 110.623 310.845C110.314 311.266 109.913 311.538 109.42 311.661V311.72C109.801 311.786 110.144 311.942 110.449 312.188C110.757 312.429 111.002 312.733 111.184 313.097C111.37 313.459 111.465 313.855 111.468 314.286C111.465 314.836 111.309 315.326 111.001 315.757C110.692 316.188 110.265 316.526 109.718 316.771C109.174 317.017 108.55 317.139 107.844 317.139ZM107.844 315.881C108.265 315.881 108.629 315.812 108.937 315.673C109.246 315.53 109.484 315.333 109.653 315.081C109.822 314.826 109.908 314.527 109.912 314.186C109.908 313.831 109.816 313.518 109.633 313.246C109.454 312.975 109.211 312.761 108.903 312.605C108.594 312.449 108.241 312.371 107.844 312.371C107.443 312.371 107.086 312.449 106.775 312.605C106.463 312.761 106.218 312.975 106.039 313.246C105.86 313.518 105.772 313.831 105.775 314.186C105.772 314.527 105.853 314.826 106.019 315.081C106.188 315.333 106.428 315.53 106.74 315.673C107.051 315.812 107.419 315.881 107.844 315.881ZM107.844 311.143C108.182 311.143 108.482 311.076 108.743 310.94C109.005 310.804 109.211 310.615 109.36 310.373C109.512 310.131 109.59 309.848 109.594 309.523C109.59 309.205 109.514 308.926 109.365 308.688C109.219 308.449 109.015 308.265 108.753 308.136C108.492 308.003 108.188 307.937 107.844 307.937C107.492 307.937 107.184 308.003 106.919 308.136C106.657 308.265 106.453 308.449 106.307 308.688C106.162 308.926 106.09 309.205 106.094 309.523C106.09 309.848 106.163 310.131 106.312 310.373C106.461 310.615 106.667 310.804 106.929 310.94C107.194 311.076 107.499 311.143 107.844 311.143Z" fill="white"/>
 <g opacity="0.8">
 <path d="M205.75 316.119C205.108 316.119 204.561 315.945 204.109 315.595C203.658 315.243 203.313 314.733 203.074 314.065C202.835 313.395 202.716 312.585 202.716 311.636C202.716 310.693 202.835 309.888 203.074 309.22C203.315 308.55 203.662 308.038 204.114 307.686C204.568 307.331 205.114 307.153 205.75 307.153C206.386 307.153 206.93 307.331 207.382 307.686C207.837 308.038 208.183 308.55 208.422 309.22C208.663 309.888 208.784 310.693 208.784 311.636C208.784 312.585 208.665 313.395 208.426 314.065C208.188 314.733 207.842 315.243 207.391 315.595C206.939 315.945 206.392 316.119 205.75 316.119ZM205.75 315.182C206.386 315.182 206.881 314.875 207.233 314.261C207.585 313.648 207.761 312.773 207.761 311.636C207.761 310.881 207.68 310.237 207.518 309.706C207.359 309.175 207.129 308.77 206.828 308.491C206.53 308.213 206.17 308.074 205.75 308.074C205.119 308.074 204.626 308.385 204.271 309.007C203.916 309.626 203.739 310.503 203.739 311.636C203.739 312.392 203.818 313.034 203.977 313.562C204.136 314.091 204.365 314.493 204.663 314.768C204.964 315.044 205.327 315.182 205.75 315.182ZM213.25 316.119C212.608 316.119 212.061 315.945 211.609 315.595C211.158 315.243 210.813 314.733 210.574 314.065C210.335 313.395 210.216 312.585 210.216 311.636C210.216 310.693 210.335 309.888 210.574 309.22C210.815 308.55 211.162 308.038 211.614 307.686C212.068 307.331 212.614 307.153 213.25 307.153C213.886 307.153 214.43 307.331 214.882 307.686C215.337 308.038 215.683 308.55 215.922 309.22C216.163 309.888 216.284 310.693 216.284 311.636C216.284 312.585 216.165 313.395 215.926 314.065C215.688 314.733 215.342 315.243 214.891 315.595C214.439 315.945 213.892 316.119 213.25 316.119ZM213.25 315.182C213.886 315.182 214.381 314.875 214.733 314.261C215.085 313.648 215.261 312.773 215.261 311.636C215.261 310.881 215.18 310.237 215.018 309.706C214.859 309.175 214.629 308.77 214.328 308.491C214.03 308.213 213.67 308.074 213.25 308.074C212.619 308.074 212.126 308.385 211.771 309.007C211.416 309.626 211.239 310.503 211.239 311.636C211.239 312.392 211.318 313.034 211.477 313.562C211.636 314.091 211.865 314.493 212.163 314.768C212.464 315.044 212.827 315.182 213.25 315.182ZM218.653 314.884C218.443 314.884 218.263 314.808 218.112 314.658C217.962 314.507 217.886 314.327 217.886 314.116C217.886 313.906 217.962 313.726 218.112 313.575C218.263 313.425 218.443 313.349 218.653 313.349C218.864 313.349 219.044 313.425 219.195 313.575C219.345 313.726 219.42 313.906 219.42 314.116C219.42 314.256 219.385 314.384 219.314 314.5C219.246 314.616 219.153 314.71 219.037 314.781C218.923 314.849 218.795 314.884 218.653 314.884ZM218.653 310.469C218.443 310.469 218.263 310.393 218.112 310.243C217.962 310.092 217.886 309.912 217.886 309.702C217.886 309.491 217.962 309.311 218.112 309.161C218.263 309.01 218.443 308.935 218.653 308.935C218.864 308.935 219.044 309.01 219.195 309.161C219.345 309.311 219.42 309.491 219.42 309.702C219.42 309.841 219.385 309.969 219.314 310.085C219.246 310.202 219.153 310.295 219.037 310.366C218.923 310.435 218.795 310.469 218.653 310.469ZM224.055 316.119C223.413 316.119 222.866 315.945 222.414 315.595C221.962 315.243 221.617 314.733 221.379 314.065C221.14 313.395 221.021 312.585 221.021 311.636C221.021 310.693 221.14 309.888 221.379 309.22C221.62 308.55 221.967 308.038 222.418 307.686C222.873 307.331 223.418 307.153 224.055 307.153C224.691 307.153 225.235 307.331 225.687 307.686C226.141 308.038 226.488 308.55 226.727 309.22C226.968 309.888 227.089 310.693 227.089 311.636C227.089 312.585 226.969 313.395 226.731 314.065C226.492 314.733 226.147 315.243 225.695 315.595C225.244 315.945 224.697 316.119 224.055 316.119ZM224.055 315.182C224.691 315.182 225.185 314.875 225.538 314.261C225.89 313.648 226.066 312.773 226.066 311.636C226.066 310.881 225.985 310.237 225.823 309.706C225.664 309.175 225.434 308.77 225.133 308.491C224.835 308.213 224.475 308.074 224.055 308.074C223.424 308.074 222.931 308.385 222.576 309.007C222.221 309.626 222.043 310.503 222.043 311.636C222.043 312.392 222.123 313.034 222.282 313.562C222.441 314.091 222.67 314.493 222.968 314.768C223.269 315.044 223.631 315.182 224.055 315.182ZM231.555 316.119C230.913 316.119 230.366 315.945 229.914 315.595C229.462 315.243 229.117 314.733 228.879 314.065C228.64 313.395 228.521 312.585 228.521 311.636C228.521 310.693 228.64 309.888 228.879 309.22C229.12 308.55 229.467 308.038 229.918 307.686C230.373 307.331 230.918 307.153 231.555 307.153C232.191 307.153 232.735 307.331 233.187 307.686C233.641 308.038 233.988 308.55 234.227 309.22C234.468 309.888 234.589 310.693 234.589 311.636C234.589 312.585 234.469 313.395 234.231 314.065C233.992 314.733 233.647 315.243 233.195 315.595C232.744 315.945 232.197 316.119 231.555 316.119ZM231.555 315.182C232.191 315.182 232.685 314.875 233.038 314.261C233.39 313.648 233.566 312.773 233.566 311.636C233.566 310.881 233.485 310.237 233.323 309.706C233.164 309.175 232.934 308.77 232.633 308.491C232.335 308.213 231.975 308.074 231.555 308.074C230.924 308.074 230.431 308.385 230.076 309.007C229.721 309.626 229.543 310.503 229.543 311.636C229.543 312.392 229.623 313.034 229.782 313.562C229.941 314.091 230.17 314.493 230.468 314.768C230.769 315.044 231.131 315.182 231.555 315.182ZM236.958 314.884C236.748 314.884 236.567 314.808 236.417 314.658C236.266 314.507 236.191 314.327 236.191 314.116C236.191 313.906 236.266 313.726 236.417 313.575C236.567 313.425 236.748 313.349 236.958 313.349C237.168 313.349 237.349 313.425 237.499 313.575C237.65 313.726 237.725 313.906 237.725 314.116C237.725 314.256 237.69 314.384 237.619 314.5C237.55 314.616 237.458 314.71 237.342 314.781C237.228 314.849 237.1 314.884 236.958 314.884ZM236.958 310.469C236.748 310.469 236.567 310.393 236.417 310.243C236.266 310.092 236.191 309.912 236.191 309.702C236.191 309.491 236.266 309.311 236.417 309.161C236.567 309.01 236.748 308.935 236.958 308.935C237.168 308.935 237.349 309.01 237.499 309.161C237.65 309.311 237.725 309.491 237.725 309.702C237.725 309.841 237.69 309.969 237.619 310.085C237.55 310.202 237.458 310.295 237.342 310.366C237.228 310.435 237.1 310.469 236.958 310.469ZM242.359 316.119C241.717 316.119 241.17 315.945 240.719 315.595C240.267 315.243 239.922 314.733 239.683 314.065C239.445 313.395 239.325 312.585 239.325 311.636C239.325 310.693 239.445 309.888 239.683 309.22C239.925 308.55 240.271 308.038 240.723 307.686C241.178 307.331 241.723 307.153 242.359 307.153C242.996 307.153 243.54 307.331 243.991 307.686C244.446 308.038 244.793 308.55 245.031 309.22C245.273 309.888 245.393 310.693 245.393 311.636C245.393 312.585 245.274 313.395 245.036 314.065C244.797 314.733 244.452 315.243 244 315.595C243.548 315.945 243.001 316.119 242.359 316.119ZM242.359 315.182C242.996 315.182 243.49 314.875 243.842 314.261C244.195 313.648 244.371 312.773 244.371 311.636C244.371 310.881 244.29 310.237 244.128 309.706C243.969 309.175 243.739 308.77 243.438 308.491C243.139 308.213 242.78 308.074 242.359 308.074C241.729 308.074 241.236 308.385 240.881 309.007C240.526 309.626 240.348 310.503 240.348 311.636C240.348 312.392 240.428 313.034 240.587 313.562C240.746 314.091 240.974 314.493 241.273 314.768C241.574 315.044 241.936 315.182 242.359 315.182ZM247.013 316V315.233L249.893 312.08C250.232 311.71 250.51 311.389 250.729 311.116C250.947 310.841 251.109 310.582 251.214 310.341C251.322 310.097 251.376 309.841 251.376 309.574C251.376 309.267 251.303 309.001 251.155 308.777C251.01 308.553 250.811 308.379 250.558 308.257C250.305 308.135 250.021 308.074 249.706 308.074C249.371 308.074 249.078 308.143 248.828 308.283C248.581 308.419 248.389 308.611 248.253 308.858C248.119 309.105 248.053 309.395 248.053 309.727H247.047C247.047 309.216 247.165 308.767 247.401 308.381C247.636 307.994 247.957 307.693 248.364 307.477C248.773 307.261 249.232 307.153 249.74 307.153C250.251 307.153 250.705 307.261 251.099 307.477C251.494 307.693 251.804 307.984 252.028 308.351C252.253 308.717 252.365 309.125 252.365 309.574C252.365 309.895 252.307 310.209 252.19 310.516C252.077 310.82 251.878 311.159 251.594 311.534C251.312 311.906 250.922 312.361 250.422 312.898L248.462 314.994V315.062H252.518V316H247.013Z" fill="#E5E6E8"/>
 </g>
-<rect class="btn-pickup" x="262" y="300" width="24" height="24" rx="12" fill="white"/>
-<path d="M278.302 314.374C277.644 313.811 276.974 313.468 276.323 314.032L275.934 314.371C275.65 314.619 275.121 315.773 273.077 313.42C271.034 311.072 272.249 310.706 272.535 310.461L272.926 310.121C273.573 309.557 273.328 308.847 272.861 308.115L272.58 307.673C272.111 306.944 271.599 306.465 270.95 307.027L270.6 307.335C270.312 307.543 269.51 308.223 269.316 309.514C269.081 311.062 269.821 312.836 271.513 314.782C273.202 316.729 274.858 317.707 276.425 317.69C277.727 317.675 278.515 316.977 278.761 316.722L279.112 316.415C279.761 315.853 279.358 315.279 278.698 314.715L278.302 314.374Z" fill="#001221"/>
-<rect y="340" width="295" height="40" rx="8" fill="#001221"/>
+<g transform="translate(8,0)"><rect class="btn-pickup" x="262" y="300" width="24" height="24" rx="12" fill="white"/><path d="M278.302 314.374C277.644 313.811 276.974 313.468 276.323 314.032L275.934 314.371C275.65 314.619 275.121 315.773 273.077 313.42C271.034 311.072 272.249 310.706 272.535 310.461L272.926 310.121C273.573 309.557 273.328 308.847 272.861 308.115L272.58 307.673C272.111 306.944 271.599 306.465 270.95 307.027L270.6 307.335C270.312 307.543 269.51 308.223 269.316 309.514C269.081 311.062 269.821 312.836 271.513 314.782C273.202 316.729 274.858 317.707 276.425 317.69C277.727 317.675 278.515 316.977 278.761 316.722L279.112 316.415C279.761 315.853 279.358 315.279 278.698 314.715L278.302 314.374Z" fill="#001221"/></g>
+<rect y="340" width="302" height="40" rx="8" fill="#001221"/>
 <path d="M12.6165 356.141V354.818H20.4964V356.141H17.3196V365H15.7884V356.141H12.6165ZM24.3022 365.154C23.5498 365.154 22.9019 364.993 22.3583 364.672C21.8181 364.347 21.4004 363.891 21.1055 363.305C20.8138 362.715 20.668 362.024 20.668 361.232C20.668 360.449 20.8138 359.76 21.1055 359.163C21.4004 358.567 21.8114 358.101 22.3384 357.766C22.8687 357.432 23.4885 357.264 24.1978 357.264C24.6287 357.264 25.0463 357.335 25.4506 357.478C25.855 357.621 26.2179 357.844 26.5394 358.149C26.8609 358.454 27.1145 358.85 27.3001 359.337C27.4857 359.821 27.5785 360.41 27.5785 361.102V361.629H21.5082V360.516H26.1218C26.1218 360.125 26.0423 359.778 25.8832 359.477C25.7241 359.172 25.5004 358.931 25.212 358.756C24.927 358.58 24.5922 358.492 24.2077 358.492C23.7901 358.492 23.4255 358.595 23.114 358.8C22.8058 359.003 22.5671 359.268 22.3981 359.596C22.2324 359.921 22.1495 360.274 22.1495 360.655V361.525C22.1495 362.035 22.239 362.469 22.418 362.827C22.6003 363.185 22.8538 363.459 23.1786 363.648C23.5034 363.833 23.8829 363.926 24.3171 363.926C24.5988 363.926 24.8557 363.886 25.0877 363.807C25.3197 363.724 25.5202 363.601 25.6893 363.439C25.8583 363.277 25.9876 363.076 26.0771 362.837L27.484 363.091C27.3713 363.505 27.1692 363.868 26.8775 364.18C26.5891 364.488 26.2262 364.728 25.7887 364.901C25.3545 365.07 24.859 365.154 24.3022 365.154ZM29.2278 365V357.364H30.6646V358.577H30.7441C30.8833 358.166 31.1286 357.843 31.4799 357.607C31.8346 357.369 32.2356 357.249 32.6831 357.249C32.7759 357.249 32.8852 357.253 33.0112 357.259C33.1404 357.266 33.2415 357.274 33.3145 357.284V358.706C33.2548 358.689 33.1487 358.671 32.9963 358.651C32.8438 358.628 32.6913 358.616 32.5389 358.616C32.1876 358.616 31.8743 358.691 31.5993 358.84C31.3275 358.986 31.112 359.19 30.9529 359.452C30.7939 359.71 30.7143 360.005 30.7143 360.337V365H29.2278ZM34.6009 365V357.364H36.0376V358.577H36.1172C36.2564 358.166 36.5017 357.843 36.853 357.607C37.2076 357.369 37.6087 357.249 38.0561 357.249C38.1489 357.249 38.2583 357.253 38.3842 357.259C38.5135 357.266 38.6146 357.274 38.6875 357.284V358.706C38.6278 358.689 38.5218 358.671 38.3693 358.651C38.2169 358.628 38.0644 358.616 37.9119 358.616C37.5606 358.616 37.2474 358.691 36.9723 358.84C36.7005 358.986 36.4851 359.19 36.326 359.452C36.1669 359.71 36.0874 360.005 36.0874 360.337V365H34.6009ZM41.146 367.864C40.9239 367.864 40.7217 367.845 40.5394 367.809C40.3571 367.776 40.2212 367.739 40.1317 367.7L40.4897 366.482C40.7615 366.554 41.0034 366.586 41.2156 366.576C41.4277 366.566 41.6149 366.487 41.7773 366.337C41.9431 366.188 42.0889 365.945 42.2148 365.607L42.3988 365.099L39.6048 357.364H41.1957L43.1296 363.29H43.2092L45.1431 357.364H46.739L43.592 366.019C43.4461 366.417 43.2605 366.753 43.0352 367.028C42.8098 367.307 42.5413 367.516 42.2298 367.655C41.9182 367.794 41.5569 367.864 41.146 367.864ZM51.9604 365V354.818H53.4966V363.678H58.1103V365H51.9604ZM62.96 365.154C62.2441 365.154 61.6194 364.99 61.0858 364.662C60.5521 364.334 60.1378 363.875 59.8429 363.285C59.5479 362.695 59.4004 362.005 59.4004 361.217C59.4004 360.424 59.5479 359.732 59.8429 359.138C60.1378 358.545 60.5521 358.085 61.0858 357.756C61.6194 357.428 62.2441 357.264 62.96 357.264C63.676 357.264 64.3007 357.428 64.8343 357.756C65.368 358.085 65.7823 358.545 66.0772 359.138C66.3722 359.732 66.5197 360.424 66.5197 361.217C66.5197 362.005 66.3722 362.695 66.0772 363.285C65.7823 363.875 65.368 364.334 64.8343 364.662C64.3007 364.99 63.676 365.154 62.96 365.154ZM62.965 363.906C63.429 363.906 63.8135 363.784 64.1184 363.538C64.4234 363.293 64.6487 362.967 64.7946 362.559C64.9437 362.151 65.0183 361.702 65.0183 361.212C65.0183 360.724 64.9437 360.277 64.7946 359.869C64.6487 359.458 64.4234 359.129 64.1184 358.88C63.8135 358.631 63.429 358.507 62.965 358.507C62.4977 358.507 62.1099 358.631 61.8017 358.88C61.4967 359.129 61.2697 359.458 61.1206 359.869C60.9747 360.277 60.9018 360.724 60.9018 361.212C60.9018 361.702 60.9747 362.151 61.1206 362.559C61.2697 362.967 61.4967 363.293 61.8017 363.538C62.1099 363.784 62.4977 363.906 62.965 363.906ZM69.6021 365L67.3549 357.364H68.8912L70.3876 362.972H70.4622L71.9636 357.364H73.4998L74.9913 362.947H75.0659L76.5524 357.364H78.0886L75.8464 365H74.3301L72.7789 359.487H72.6646L71.1135 365H69.6021ZM80.9858 354.818V365H79.4993V354.818H80.9858ZM85.2079 365.169C84.724 365.169 84.2865 365.08 83.8954 364.901C83.5043 364.718 83.1944 364.455 82.9657 364.11C82.7404 363.765 82.6277 363.343 82.6277 362.842C82.6277 362.411 82.7105 362.057 82.8762 361.778C83.042 361.5 83.2657 361.28 83.5474 361.117C83.8291 360.955 84.144 360.832 84.492 360.749C84.84 360.666 85.1947 360.603 85.5559 360.56C86.0133 360.507 86.3845 360.464 86.6696 360.431C86.9546 360.395 87.1618 360.337 87.291 360.257C87.4203 360.178 87.4849 360.048 87.4849 359.869V359.835C87.4849 359.4 87.3623 359.064 87.117 358.825C86.8751 358.587 86.5138 358.467 86.0332 358.467C85.5327 358.467 85.1383 358.578 84.85 358.8C84.5649 359.019 84.3677 359.263 84.2583 359.531L82.8613 359.213C83.027 358.749 83.269 358.375 83.5872 358.089C83.9087 357.801 84.2782 357.592 84.6958 357.463C85.1135 357.33 85.5526 357.264 86.0133 357.264C86.3182 357.264 86.6414 357.301 86.9828 357.374C87.3275 357.443 87.649 357.572 87.9473 357.761C88.2489 357.95 88.4958 358.22 88.688 358.572C88.8803 358.92 88.9764 359.372 88.9764 359.929V365H87.5247V363.956H87.465C87.3689 364.148 87.2247 364.337 87.0325 364.523C86.8403 364.708 86.5933 364.862 86.2917 364.985C85.9901 365.108 85.6288 365.169 85.2079 365.169ZM85.5311 363.976C85.9421 363.976 86.2934 363.895 86.585 363.732C86.88 363.57 87.1038 363.358 87.2562 363.096C87.412 362.831 87.4899 362.547 87.4899 362.246V361.261C87.4368 361.314 87.3341 361.364 87.1816 361.411C87.0325 361.454 86.8618 361.492 86.6696 361.525C86.4773 361.555 86.2901 361.583 86.1078 361.609C85.9255 361.633 85.773 361.652 85.6504 361.669C85.362 361.705 85.0985 361.767 84.8599 361.853C84.6246 361.939 84.4357 362.063 84.2931 362.226C84.1539 362.385 84.0843 362.597 84.0843 362.862C84.0843 363.23 84.2202 363.509 84.492 363.697C84.7638 363.883 85.1101 363.976 85.5311 363.976ZM92.4428 360.466V365H90.9563V357.364H92.3832V358.607H92.4776C92.6533 358.202 92.9284 357.877 93.3029 357.632C93.6808 357.387 94.1564 357.264 94.7298 357.264C95.2501 357.264 95.7058 357.374 96.0969 357.592C96.488 357.808 96.7913 358.129 97.0067 358.557C97.2222 358.984 97.3299 359.513 97.3299 360.143V365H95.8434V360.322C95.8434 359.768 95.6992 359.336 95.4109 359.024C95.1225 358.709 94.7264 358.552 94.2227 358.552C93.878 358.552 93.5714 358.626 93.3029 358.776C93.0378 358.925 92.8273 359.143 92.6715 359.432C92.5191 359.717 92.4428 360.062 92.4428 360.466ZM102.54 365.154C101.801 365.154 101.165 364.987 100.631 364.652C100.101 364.314 99.6931 363.848 99.408 363.255C99.123 362.662 98.9805 361.982 98.9805 361.217C98.9805 360.441 99.1263 359.757 99.418 359.163C99.7096 358.567 100.121 358.101 100.651 357.766C101.181 357.432 101.806 357.264 102.525 357.264C103.105 357.264 103.622 357.372 104.076 357.587C104.53 357.799 104.897 358.098 105.175 358.482C105.457 358.867 105.624 359.316 105.677 359.83H104.23C104.151 359.472 103.969 359.163 103.684 358.905C103.402 358.646 103.024 358.517 102.55 358.517C102.136 358.517 101.773 358.626 101.461 358.845C101.153 359.061 100.913 359.369 100.74 359.77C100.568 360.168 100.482 360.638 100.482 361.182C100.482 361.739 100.566 362.219 100.735 362.624C100.904 363.028 101.143 363.341 101.451 363.563C101.763 363.785 102.129 363.896 102.55 363.896C102.832 363.896 103.087 363.845 103.316 363.742C103.548 363.636 103.742 363.485 103.897 363.29C104.056 363.094 104.167 362.859 104.23 362.584H105.677C105.624 363.078 105.463 363.518 105.195 363.906C104.926 364.294 104.567 364.599 104.116 364.821C103.669 365.043 103.143 365.154 102.54 365.154ZM110.558 365.154C109.806 365.154 109.158 364.993 108.614 364.672C108.074 364.347 107.656 363.891 107.361 363.305C107.07 362.715 106.924 362.024 106.924 361.232C106.924 360.449 107.07 359.76 107.361 359.163C107.656 358.567 108.067 358.101 108.594 357.766C109.125 357.432 109.744 357.264 110.454 357.264C110.885 357.264 111.302 357.335 111.706 357.478C112.111 357.621 112.474 357.844 112.795 358.149C113.117 358.454 113.37 358.85 113.556 359.337C113.742 359.821 113.834 360.41 113.834 361.102V361.629H107.764V360.516H112.378C112.378 360.125 112.298 359.778 112.139 359.477C111.98 359.172 111.756 358.931 111.468 358.756C111.183 358.58 110.848 358.492 110.464 358.492C110.046 358.492 109.681 358.595 109.37 358.8C109.062 359.003 108.823 359.268 108.654 359.596C108.488 359.921 108.405 360.274 108.405 360.655V361.525C108.405 362.035 108.495 362.469 108.674 362.827C108.856 363.185 109.11 363.459 109.434 363.648C109.759 363.833 110.139 363.926 110.573 363.926C110.855 363.926 111.112 363.886 111.344 363.807C111.576 363.724 111.776 363.601 111.945 363.439C112.114 363.277 112.243 363.076 112.333 362.837L113.74 363.091C113.627 363.505 113.425 363.868 113.133 364.18C112.845 364.488 112.482 364.728 112.045 364.901C111.61 365.07 111.115 365.154 110.558 365.154Z" fill="white"/>
 <g opacity="0.8">
 <path d="M210.75 364.119C210.108 364.119 209.561 363.945 209.109 363.595C208.658 363.243 208.313 362.733 208.074 362.065C207.835 361.395 207.716 360.585 207.716 359.636C207.716 358.693 207.835 357.888 208.074 357.22C208.315 356.55 208.662 356.038 209.114 355.686C209.568 355.331 210.114 355.153 210.75 355.153C211.386 355.153 211.93 355.331 212.382 355.686C212.837 356.038 213.183 356.55 213.422 357.22C213.663 357.888 213.784 358.693 213.784 359.636C213.784 360.585 213.665 361.395 213.426 362.065C213.188 362.733 212.842 363.243 212.391 363.595C211.939 363.945 211.392 364.119 210.75 364.119ZM210.75 363.182C211.386 363.182 211.881 362.875 212.233 362.261C212.585 361.648 212.761 360.773 212.761 359.636C212.761 358.881 212.68 358.237 212.518 357.706C212.359 357.175 212.129 356.77 211.828 356.491C211.53 356.213 211.17 356.074 210.75 356.074C210.119 356.074 209.626 356.385 209.271 357.007C208.916 357.626 208.739 358.503 208.739 359.636C208.739 360.392 208.818 361.034 208.977 361.562C209.136 362.091 209.365 362.493 209.663 362.768C209.964 363.044 210.327 363.182 210.75 363.182ZM218.25 364.119C217.608 364.119 217.061 363.945 216.609 363.595C216.158 363.243 215.813 362.733 215.574 362.065C215.335 361.395 215.216 360.585 215.216 359.636C215.216 358.693 215.335 357.888 215.574 357.22C215.815 356.55 216.162 356.038 216.614 355.686C217.068 355.331 217.614 355.153 218.25 355.153C218.886 355.153 219.43 355.331 219.882 355.686C220.337 356.038 220.683 356.55 220.922 357.22C221.163 357.888 221.284 358.693 221.284 359.636C221.284 360.585 221.165 361.395 220.926 362.065C220.688 362.733 220.342 363.243 219.891 363.595C219.439 363.945 218.892 364.119 218.25 364.119ZM218.25 363.182C218.886 363.182 219.381 362.875 219.733 362.261C220.085 361.648 220.261 360.773 220.261 359.636C220.261 358.881 220.18 358.237 220.018 357.706C219.859 357.175 219.629 356.77 219.328 356.491C219.03 356.213 218.67 356.074 218.25 356.074C217.619 356.074 217.126 356.385 216.771 357.007C216.416 357.626 216.239 358.503 216.239 359.636C216.239 360.392 216.318 361.034 216.477 361.562C216.636 362.091 216.865 362.493 217.163 362.768C217.464 363.044 217.827 363.182 218.25 363.182ZM223.653 362.884C223.443 362.884 223.263 362.808 223.112 362.658C222.962 362.507 222.886 362.327 222.886 362.116C222.886 361.906 222.962 361.726 223.112 361.575C223.263 361.425 223.443 361.349 223.653 361.349C223.864 361.349 224.044 361.425 224.195 361.575C224.345 361.726 224.42 361.906 224.42 362.116C224.42 362.256 224.385 362.384 224.314 362.5C224.246 362.616 224.153 362.71 224.037 362.781C223.923 362.849 223.795 362.884 223.653 362.884ZM223.653 358.469C223.443 358.469 223.263 358.393 223.112 358.243C222.962 358.092 222.886 357.912 222.886 357.702C222.886 357.491 222.962 357.311 223.112 357.161C223.263 357.01 223.443 356.935 223.653 356.935C223.864 356.935 224.044 357.01 224.195 357.161C224.345 357.311 224.42 357.491 224.42 357.702C224.42 357.841 224.385 357.969 224.314 358.085C224.246 358.202 224.153 358.295 224.037 358.366C223.923 358.435 223.795 358.469 223.653 358.469ZM229.055 364.119C228.413 364.119 227.866 363.945 227.414 363.595C226.962 363.243 226.617 362.733 226.379 362.065C226.14 361.395 226.021 360.585 226.021 359.636C226.021 358.693 226.14 357.888 226.379 357.22C226.62 356.55 226.967 356.038 227.418 355.686C227.873 355.331 228.418 355.153 229.055 355.153C229.691 355.153 230.235 355.331 230.687 355.686C231.141 356.038 231.488 356.55 231.727 357.22C231.968 357.888 232.089 358.693 232.089 359.636C232.089 360.585 231.969 361.395 231.731 362.065C231.492 362.733 231.147 363.243 230.695 363.595C230.244 363.945 229.697 364.119 229.055 364.119ZM229.055 363.182C229.691 363.182 230.185 362.875 230.538 362.261C230.89 361.648 231.066 360.773 231.066 359.636C231.066 358.881 230.985 358.237 230.823 357.706C230.664 357.175 230.434 356.77 230.133 356.491C229.835 356.213 229.475 356.074 229.055 356.074C228.424 356.074 227.931 356.385 227.576 357.007C227.221 357.626 227.043 358.503 227.043 359.636C227.043 360.392 227.123 361.034 227.282 361.562C227.441 362.091 227.67 362.493 227.968 362.768C228.269 363.044 228.631 363.182 229.055 363.182ZM236.776 355.273V364H235.719V356.381H235.668L233.538 357.795V356.722L235.719 355.273H236.776ZM240.036 362.884C239.826 362.884 239.646 362.808 239.495 362.658C239.344 362.507 239.269 362.327 239.269 362.116C239.269 361.906 239.344 361.726 239.495 361.575C239.646 361.425 239.826 361.349 240.036 361.349C240.246 361.349 240.427 361.425 240.577 361.575C240.728 361.726 240.803 361.906 240.803 362.116C240.803 362.256 240.768 362.384 240.697 362.5C240.629 362.616 240.536 362.71 240.42 362.781C240.306 362.849 240.178 362.884 240.036 362.884ZM240.036 358.469C239.826 358.469 239.646 358.393 239.495 358.243C239.344 358.092 239.269 357.912 239.269 357.702C239.269 357.491 239.344 357.311 239.495 357.161C239.646 357.01 239.826 356.935 240.036 356.935C240.246 356.935 240.427 357.01 240.577 357.161C240.728 357.311 240.803 357.491 240.803 357.702C240.803 357.841 240.768 357.969 240.697 358.085C240.629 358.202 240.536 358.295 240.42 358.366C240.306 358.435 240.178 358.469 240.036 358.469ZM245.438 364.119C244.795 364.119 244.249 363.945 243.797 363.595C243.345 363.243 243 362.733 242.761 362.065C242.523 361.395 242.403 360.585 242.403 359.636C242.403 358.693 242.523 357.888 242.761 357.22C243.003 356.55 243.349 356.038 243.801 355.686C244.256 355.331 244.801 355.153 245.438 355.153C246.074 355.153 246.618 355.331 247.07 355.686C247.524 356.038 247.871 356.55 248.109 357.22C248.351 357.888 248.472 358.693 248.472 359.636C248.472 360.585 248.352 361.395 248.114 362.065C247.875 362.733 247.53 363.243 247.078 363.595C246.626 363.945 246.08 364.119 245.438 364.119ZM245.438 363.182C246.074 363.182 246.568 362.875 246.92 362.261C247.273 361.648 247.449 360.773 247.449 359.636C247.449 358.881 247.368 358.237 247.206 357.706C247.047 357.175 246.817 356.77 246.516 356.491C246.217 356.213 245.858 356.074 245.438 356.074C244.807 356.074 244.314 356.385 243.959 357.007C243.604 357.626 243.426 358.503 243.426 359.636C243.426 360.392 243.506 361.034 243.665 361.562C243.824 362.091 244.053 362.493 244.351 362.768C244.652 363.044 245.014 363.182 245.438 363.182ZM253.159 355.273V364H252.102V356.381H252.051L249.92 357.795V356.722L252.102 355.273H253.159Z" fill="#E5E6E8"/>
 </g>
-<rect class="btn-pickup" x="263" y="348" width="24" height="24" rx="12" fill="white"/>
-<path d="M279.302 362.374C278.644 361.811 277.974 361.468 277.323 362.032L276.934 362.371C276.65 362.619 276.121 363.773 274.077 361.42C272.034 359.072 273.249 358.706 273.535 358.461L273.926 358.121C274.573 357.557 274.328 356.847 273.861 356.115L273.58 355.673C273.111 354.944 272.599 354.465 271.95 355.027L271.6 355.335C271.312 355.543 270.51 356.223 270.316 357.514C270.081 359.062 270.821 360.836 272.513 362.782C274.202 364.729 275.858 365.707 277.425 365.69C278.727 365.675 279.515 364.977 279.761 364.722L280.112 364.415C280.761 363.853 280.358 363.279 279.698 362.715L279.302 362.374Z" fill="#001221"/>
+<g transform="translate(7,0)"><rect class="btn-pickup" x="263" y="348" width="24" height="24" rx="12" fill="white"/><path d="M279.302 362.374C278.644 361.811 277.974 361.468 277.323 362.032L276.934 362.371C276.65 362.619 276.121 363.773 274.077 361.42C272.034 359.072 273.249 358.706 273.535 358.461L273.926 358.121C274.573 357.557 274.328 356.847 273.861 356.115L273.58 355.673C273.111 354.944 272.599 354.465 271.95 355.027L271.6 355.335C271.312 355.543 270.51 356.223 270.316 357.514C270.081 359.062 270.821 360.836 272.513 362.782C274.202 364.729 275.858 365.707 277.425 365.69C278.727 365.675 279.515 364.977 279.761 364.722L280.112 364.415C280.761 363.853 280.358 363.279 279.698 362.715L279.302 362.374Z" fill="#001221"/></g>
 </g>
 <style>
 .btn-mute,.btn-pause,.btn-hangup,.btn-vol,.btn-answer,.btn-reject,.btn-pickup{cursor:pointer;transition:opacity 0.15s ease}
@@ -791,6 +1307,16 @@
 .btn-reject:hover{fill:#E8E8E8}
 .btn-pickup:hover{fill:#E8E8E8}
 </style></svg>
+              <!-- Canonical party for this card (matches SVG). data-park-e164 drives parked From + pill; spans are fallback for name-only cards. -->
+              <div
+                id="ongoingTopCallParkMeta"
+                data-park-e164="4167638098"
+                aria-hidden="true"
+                style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0"
+              >
+                <span id="parkMetaFrom">(416) 763-8098</span>
+                <span id="parkMetaExt">(416) 763-8098</span>
+              </div>
 </div>
             </div>
             <div
@@ -894,8 +1420,8 @@
         <!-- Main Contacts Panel -->
         <main class="flex min-w-0 flex-1 flex-col bg-white">
           <!-- Tabs -->
-          <div id="tabs" class="flex h-12 items-end gap-1 border-b border-ink-100 px-4">
-            <button data-tab="contacts" class="tab-active flex items-center gap-2 px-3 text-sm" style="height:44px">
+          <div id="tabs" role="tablist" aria-label="Operator console views" class="flex h-12 items-end gap-1 border-b border-ink-100 px-4">
+            <button type="button" role="tab" id="tab-contacts" aria-selected="true" aria-controls="contactsPanel" data-tab="contacts" class="tab-active flex items-center gap-2 px-3 text-sm" style="height:44px">
               <span class="tab-icon">
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15.8332 0H4.1665C3.70817 0 3.33317 0.375 3.33317 0.833333C3.33317 1.29167 3.70817 1.66667 4.1665 1.66667H15.8332C16.2915 1.66667 16.6665 1.29167 16.6665 0.833333C16.6665 0.375 16.2915 0 15.8332 0ZM4.1665 20H15.8332C16.2915 20 16.6665 19.625 16.6665 19.1667C16.6665 18.7083 16.2915 18.3333 15.8332 18.3333H4.1665C3.70817 18.3333 3.33317 18.7083 3.33317 19.1667C3.33317 19.625 3.70817 20 4.1665 20ZM16.6665 3.33333H3.33317C2.4165 3.33333 1.6665 4.08333 1.6665 5V15C1.6665 15.9167 2.4165 16.6667 3.33317 16.6667H16.6665C17.5832 16.6667 18.3332 15.9167 18.3332 15V5C18.3332 4.08333 17.5832 3.33333 16.6665 3.33333ZM9.99984 5.625C11.0332 5.625 11.8748 6.46667 11.8748 7.5C11.8748 8.53333 11.0332 9.375 9.99984 9.375C8.9665 9.375 8.12484 8.53333 8.12484 7.5C8.12484 6.46667 8.9665 5.625 9.99984 5.625ZM14.1665 14.1667H5.83317V12.9167C5.83317 11.525 8.60817 10.8333 9.99984 10.8333C11.3915 10.8333 14.1665 11.525 14.1665 12.9167V14.1667Z"/>
@@ -903,7 +1429,7 @@
               </span>
               Contacts
             </button>
-            <button data-tab="unattended" class="tab-inactive flex items-center gap-2 px-3 text-sm" style="height:44px">
+            <button type="button" role="tab" id="tab-unattended" aria-selected="false" aria-controls="unattendedPanel" data-tab="unattended" class="tab-inactive flex items-center gap-2 px-3 text-sm" style="height:44px">
               <span class="tab-icon">
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                   <path d="M11.0501 2.49998C6.80844 2.38331 3.33344 5.79165 3.33344 9.99998H1.84177C1.46677 9.99998 1.28344 10.45 1.55011 10.7083L3.87511 13.0416C4.04177 13.2083 4.30011 13.2083 4.46677 13.0416L6.79177 10.7083C7.05011 10.45 6.86677 9.99998 6.49177 9.99998H5.00011C5.00011 6.74998 7.65011 4.12498 10.9168 4.16665C14.0168 4.20831 16.6251 6.81665 16.6668 9.91665C16.7084 13.175 14.0834 15.8333 10.8334 15.8333C9.49177 15.8333 8.25011 15.375 7.26677 14.6C6.93344 14.3416 6.46677 14.3666 6.16677 14.6666C5.81677 15.0166 5.84177 15.6083 6.23344 15.9083C7.50011 16.9083 9.09177 17.5 10.8334 17.5C15.0418 17.5 18.4501 14.025 18.3334 9.78331C18.2251 5.87498 14.9584 2.60831 11.0501 2.49998ZM10.6251 6.66665C10.2834 6.66665 10.0001 6.94998 10.0001 7.29165V10.3583C10.0001 10.65 10.1584 10.925 10.4084 11.075L13.0084 12.6166C13.3084 12.7916 13.6918 12.6916 13.8668 12.4C14.0418 12.1 13.9418 11.7166 13.6501 11.5416L11.2501 10.1166V7.28331C11.2501 6.94998 10.9668 6.66665 10.6251 6.66665Z"/>
@@ -911,7 +1437,7 @@
               </span>
               Unattended calls
             </button>
-            <button data-tab="parked" class="tab-inactive flex items-center gap-2 px-3 text-sm" style="height:44px">
+            <button type="button" role="tab" id="tab-parked" aria-selected="false" aria-controls="parkedPanel" data-tab="parked" class="tab-inactive flex items-center gap-2 px-3 text-sm" style="height:44px">
               <span class="tab-icon" style="position:relative">
                 <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                   <path d="M15.8333 2.5H4.16667C3.25 2.5 2.5 3.25 2.5 4.16667V15.8333C2.5 16.75 3.25 17.5 4.16667 17.5H15.8333C16.75 17.5 17.5 16.75 17.5 15.8333V4.16667C17.5 3.25 16.75 2.5 15.8333 2.5ZM10.5833 11.1667H9.58333V13.5833H7.58333V6.5H10.5C12.25 6.5 13.1667 7.5 13.1667 8.83333C13.1667 10.0833 12.3333 11.1667 10.5833 11.1667ZM10.3333 8.08333H9.58333V9.58333H10.3333C10.9167 9.58333 11.1667 9.25 11.1667 8.83333C11.1667 8.33333 10.9167 8.08333 10.3333 8.08333Z"/>
@@ -923,16 +1449,16 @@
           </div>
 
           <!-- Contacts Panel -->
-          <div id="contactsPanel" style="display:flex;flex-direction:column;flex:1;min-height:0">
+          <div id="contactsPanel" role="tabpanel" aria-labelledby="tab-contacts" tabindex="0" style="display:flex;flex-direction:column;flex:1;min-height:0">
           <!-- Filter chips row -->
           <div class="flex items-center justify-between gap-3 border-b border-ink-100 px-4 py-3">
             <div id="groupChips" class="flex flex-wrap items-center gap-2">
               <button type="button" class="chip" data-group="favorites">Favorites</button>
-              <button type="button" class="chip" data-group="internal">Internal</button>
+              <button type="button" class="chip chip-selected" data-group="internal">Internal</button>
               <button type="button" class="chip" data-group="external">External</button>
               <button type="button" class="chip" data-group="management">Management</button>
               <button type="button" class="chip" data-group="ny-office">NY Office</button>
-              <button type="button" class="chip chip-selected" data-group="sales">Sales</button>
+              <button type="button" class="chip" data-group="sales">Sales</button>
             </div>
             <button
               type="button"
@@ -949,8 +1475,9 @@
             </button>
           </div>
 
-          <!-- Search row -->
+          <!-- Search row (bottom border hidden in tile/grid view via refresh()) -->
           <div
+            id="contactSearchRow"
             class="flex items-center justify-between gap-3 border-b border-ink-100 px-4 py-3"
           >
             <div
@@ -975,17 +1502,24 @@
                 </g>
               </svg>
             </div>
-            <div
-              class="relative flex h-11 min-w-0 flex-1 items-center rounded-xl border border-ink-200 px-3"
-            >
-              <svg class="mr-2" width="18" height="18" viewBox="0 0 18 18" fill="#4C5863" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12.5006 11.0006H11.7106L11.4306 10.7306C12.6306 9.33063 13.2506 7.42063 12.9106 5.39063C12.4406 2.61063 10.1206 0.390626 7.32063 0.0506256C3.09063 -0.469374 -0.469374 3.09063 0.0506256 7.32063C0.390626 10.1206 2.61063 12.4406 5.39063 12.9106C7.42063 13.2506 9.33063 12.6306 10.7306 11.4306L11.0006 11.7106V12.5006L15.2506 16.7506C15.6606 17.1606 16.3306 17.1606 16.7406 16.7506C17.1506 16.3406 17.1506 15.6706 16.7406 15.2606L12.5006 11.0006ZM6.50063 11.0006C4.01063 11.0006 2.00063 8.99063 2.00063 6.50063C2.00063 4.01063 4.01063 2.00063 6.50063 2.00063C8.99063 2.00063 11.0006 4.01063 11.0006 6.50063C11.0006 8.99063 8.99063 11.0006 6.50063 11.0006Z"/>
+            <div class="console-search-wrap relative min-w-0 flex-1">
+              <svg
+                class="console-search-icon"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
+                />
               </svg>
               <input
                 id="contactSearch"
-                type="text"
+                type="search"
                 placeholder="Search a contact"
-                class="w-full bg-transparent text-sm outline-none placeholder:text-ink-500"
+                class="console-search-input"
+                autocomplete="off"
+                aria-label="Search contacts"
               />
             </div>
             <button
@@ -1080,21 +1614,36 @@
           <!-- End Contacts Panel -->
 
           <!-- Unattended Calls Panel -->
-          <div id="unattendedPanel" style="display:none;flex-direction:column;flex:1;min-height:0">
+          <div id="unattendedPanel" role="tabpanel" aria-labelledby="tab-unattended" tabindex="0" style="display:none;flex-direction:column;flex:1;min-height:0">
             <!-- Filter chips -->
-            <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #e5e6e8">
-              <button type="button" class="chip chip-selected" style="padding:0 8px 0 4px;gap:4px">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#142b53"/></svg>
+            <div id="uaFilterChips" style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #e5e6e8">
+              <button type="button" class="chip chip-selected" data-ua-filter="all" aria-pressed="true">
+                <svg class="ua-filter-check" width="16" height="16" viewBox="0 0 20 20" fill="#142B53" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.50016 13.4998L4.00016 9.99984L2.8335 11.1665L7.50016 15.8332L17.5002 5.83317L16.3335 4.6665L7.50016 13.4998Z"/></svg>
                 ALL
               </button>
-              <button type="button" class="chip">Internal</button>
-              <button type="button" class="chip">External</button>
+              <button type="button" class="chip" data-ua-filter="internal" aria-pressed="false">
+                <svg class="ua-filter-check" width="16" height="16" viewBox="0 0 20 20" fill="#142B53" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.50016 13.4998L4.00016 9.99984L2.8335 11.1665L7.50016 15.8332L17.5002 5.83317L16.3335 4.6665L7.50016 13.4998Z"/></svg>
+                Internal
+              </button>
+              <button type="button" class="chip" data-ua-filter="external" aria-pressed="false">
+                <svg class="ua-filter-check" width="16" height="16" viewBox="0 0 20 20" fill="#142B53" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.50016 13.4998L4.00016 9.99984L2.8335 11.1665L7.50016 15.8332L17.5002 5.83317L16.3335 4.6665L7.50016 13.4998Z"/></svg>
+                External
+              </button>
             </div>
             <!-- Search + filters -->
             <div style="display:flex;align-items:center;gap:24px;padding:12px 16px">
-              <div style="flex:1;min-width:0;display:flex;align-items:center;height:44px;border:1px solid #cccfd2;border-radius:12px;padding:8px 12px 8px 16px">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#7f888f" style="flex-shrink:0;margin-right:8px"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                <input id="unattendedSearch" type="text" placeholder="Search logs" style="flex:1;border:none;outline:none;background:transparent;font-family:'Open Sans',sans-serif;font-size:16px;color:#001221;letter-spacing:0.5px" />
+              <div class="console-search-wrap flex-1 min-w-0">
+                <svg class="console-search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+                <input
+                  id="unattendedSearch"
+                  type="search"
+                  class="console-search-input"
+                  placeholder="Search logs"
+                  autocomplete="off"
+                  aria-label="Search unattended calls"
+                />
               </div>
               <div style="display:flex;align-items:center;gap:24px">
                 <div style="display:flex;align-items:center;gap:4px;height:32px;padding:4px 8px;border-radius:16px;background:#f2f2f3">
@@ -1150,12 +1699,21 @@
           </div>
 
           <!-- Parked Panel -->
-          <div id="parkedPanel" style="display:none;flex-direction:column;flex:1;min-height:0">
+          <div id="parkedPanel" role="tabpanel" aria-labelledby="tab-parked" tabindex="0" style="display:none;flex-direction:column;flex:1;min-height:0">
             <!-- Search -->
             <div style="display:flex;align-items:center;padding:12px 16px">
-              <div style="flex:1;display:flex;align-items:center;height:44px;border:1px solid #cccfd2;border-radius:12px;padding:8px 12px 8px 16px">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#7f888f" style="flex-shrink:0;margin-right:8px"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                <input id="parkedSearch" type="text" placeholder="Search calls" style="flex:1;border:none;outline:none;background:transparent;font-family:'Open Sans',sans-serif;font-size:16px;color:#001221;letter-spacing:0.5px" />
+              <div class="console-search-wrap flex-1 min-w-0">
+                <svg class="console-search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
+                </svg>
+                <input
+                  id="parkedSearch"
+                  type="search"
+                  class="console-search-input"
+                  placeholder="Search calls"
+                  autocomplete="off"
+                  aria-label="Search parked calls"
+                />
               </div>
             </div>
             <!-- Table -->
@@ -1179,13 +1737,42 @@
       </div>
     </div>
 
+    <div
+      id="contactDetailScrim"
+      class="hidden"
+      aria-hidden="true"
+      style="display: none"
+    >
+      <div class="contact-detail-card" role="dialog" aria-modal="true" aria-label="Contact details">
+        <button type="button" id="contactDetailClose" class="contact-detail-card__close" aria-label="Close contact details">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#4C5863" aria-hidden="true">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+          </svg>
+        </button>
+        <div id="contactDetailBody"></div>
+      </div>
+    </div>
+
     <script>
+      function formatMmSs(totalSec) {
+        totalSec = Math.max(0, Math.floor(totalSec));
+        var mm = Math.floor(totalSec / 60);
+        var ss = totalSec % 60;
+        return (mm < 10 ? "0" : "") + mm + ":" + (ss < 10 ? "0" : "") + ss;
+      }
+      function parseMmSsToSec(str) {
+        var m = /^(\d{1,2}):(\d{2})$/.exec(String(str || "").trim());
+        if (!m) return 0;
+        return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+      }
       function syncDialCallCardsVisibility() {
         const host = document.getElementById("dialCallCardsHost");
         const empty = document.getElementById("dialCallCardsEmpty");
         if (!host || !empty) return;
-        const label = document.getElementById("lineSelectorLabel");
-        const show = !!(label && label.textContent.includes("Hardphone"));
+        const selected = document.querySelector(
+          '#lineSelectorMenu [role="option"][aria-selected="true"]'
+        );
+        const show = selected?.getAttribute("data-line") === "hardphone";
         host.classList.toggle("hidden", !show);
         host.setAttribute("aria-hidden", show ? "false" : "true");
         empty.classList.toggle("hidden", show);
@@ -1197,6 +1784,19 @@
       window.hideDialCallCards = function () {
         document.querySelector('#lineSelectorMenu [data-line="teamhub"]')?.click();
       };
+
+      function tickParkTimeoutLiveSpans() {
+        document.querySelectorAll(".park-timeout-live").forEach(function (el) {
+          var ms = parseFloat(el.getAttribute("data-park-start-ms"));
+          if (!isFinite(ms)) return;
+          el.textContent = formatMmSs((Date.now() - ms) / 1000);
+        });
+      }
+      function tickPrototypeTimers() {
+        tickParkTimeoutLiveSpans();
+      }
+      tickPrototypeTimers();
+      setInterval(tickPrototypeTimers, 1000);
 
       /* ----------------------------- Keypad ----------------------------- */
       const keys = [
@@ -1317,8 +1917,24 @@
         { name: "Dylan Reese",            ext: "2104", type: "person", status: "free",    fav: false },
         { name: "Backup Line",            ext: "5555", type: "office", status: "free",    fav: true, incomingCalls: ["Dispatch", "(905) 443-882-1034"] },
         { name: "Tessa Kim",              ext: "2105", type: "person", status: "busy",    fav: false, sub: "On a call with Nina Brooks" },
+
+        // External directory only (13 entries); disjoint from internal 69 — no status, no office type, no incoming calls
+        { name: "Mary Clary",             ext: "4167638098", type: "person", fav: false, external: true },
+        { name: "Terry Lowlance",         ext: "9054438821", type: "person", fav: false, external: true },
+        { name: "Wade Christensen",       ext: "2125550102", type: "person", fav: true,  external: true },
+        { name: "Priya Nandakumar",       ext: "5035550144", type: "person", fav: false, external: true },
+        { name: "Alex Muir",              ext: "2895550103", type: "person", fav: true,  external: true },
+        { name: "Jordan Price",           ext: "6045550104", type: "person", fav: false, external: true },
+        { name: "Samira Haddad",          ext: "5145550105", type: "person", fav: false, external: true },
+        { name: "Chris Okonkwo",          ext: "4035550106", type: "person", fav: true,  external: true },
+        { name: "Renee Blanchard",        ext: "5065550107", type: "person", fav: false, external: true },
+        { name: "Victor Okafor",          ext: "7095550108", type: "person", fav: false, external: true },
+        { name: "Lina Okada",             ext: "6475550109", type: "person", fav: true,  external: true },
+        { name: "Marcus Delgado",         ext: "3105550110", type: "person", fav: false, external: true },
+        { name: "Sarah Okimoto",          ext: "8085550111", type: "person", fav: false, external: true },
       ];
 
+      /* Presence: online (free), busy, offline — no separate "away" state */
       const statusIcons = {
         free: `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                  <circle cx="6" cy="6" r="6" fill="white"/>
@@ -1335,10 +1951,13 @@
                   </svg>`,
       };
 
-      function statusBadge(status) {
-        const icon = statusIcons[status];
+      function statusBadge(status, iconSizePx) {
+        const key = status === "online" ? "free" : status;
+        let icon = statusIcons[key];
         if (!icon) return "";
-        return `<span class="absolute -bottom-0.5 -right-0.5 leading-none">${icon}</span>`;
+        const px = iconSizePx || 12;
+        icon = icon.replace(/width="12" height="12"/g, `width="${px}" height="${px}"`);
+        return `<span class="absolute -bottom-0.5 -right-0.5 z-10 leading-none">${icon}</span>`;
       }
 
       // Sort contacts alphabetically: people by family (last) name, offices by device name.
@@ -1351,6 +1970,14 @@
       }
       contacts.sort((a, b) => sortKey(a).localeCompare(sortKey(b)));
 
+      function formatExtForDisplay(c) {
+        if (c.external) {
+          const d = String(c.ext).replace(/\D/g, "");
+          if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+        }
+        return String(c.ext);
+      }
+
       function avatarPerson(c) {
         const initials = c.name
           .split(" ")
@@ -1361,7 +1988,7 @@
         return `
           <div class="relative h-10 w-10 shrink-0">
             <div class="avatar-circle flex h-10 w-10 items-center justify-center rounded-full bg-ink-50" style="font-family:'Poppins',sans-serif;font-size:16px;font-weight:600;color:#001221">${initials}</div>
-            ${statusBadge(c.status)}
+            ${c.external ? "" : statusBadge(c.status)}
           </div>`;
       }
 
@@ -1393,45 +2020,331 @@
                 </svg>`;
       }
 
-      function renderCallCard(label) {
-        return `<div class="call-card" style="display:flex;align-items:center;justify-content:space-between;width:144px;height:28px;padding:0 8px 0 12px;background:#001221;border-radius:8px;flex-shrink:0;box-sizing:border-box" data-label="${label}">
-          <span class="cc-label" style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:400;color:#e5e6e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:16px">${label}</span>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;margin-left:4px"><rect width="20" height="20" rx="10" fill="#099F24"/><path d="M14.0202 11.8193L12.6062 11.6579C12.2667 11.6189 11.9327 11.7358 11.6933 11.9752L10.669 12.9995C9.09361 12.1979 7.80213 10.9119 7.00051 9.33096L8.03036 8.30111C8.26973 8.06173 8.38664 7.72773 8.34767 7.38815L8.18623 5.98532C8.11943 5.42308 7.64626 5 7.07845 5H6.1154C5.48635 5 4.96308 5.52328 5.00204 6.15233C5.29708 10.9064 9.09918 14.7029 13.8476 14.998C14.4767 15.0369 14.9999 14.5136 14.9999 13.8846V12.9215C15.0055 12.3593 14.5824 11.8861 14.0202 11.8193Z" fill="white"/></svg>
+      /** Handset + waves icon beside “On a call with …” — shared markup/size for list + tile */
+      function busyLineIcon() {
+        return `<svg class="contact-busy-line-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M9.3667 1.3335C10.7255 1.47668 11.9948 2.07936 12.9646 3.04188C13.9344 4.0044 14.5466 5.2691 14.7 6.62683M9.3667 4.00016C10.0224 4.12945 10.624 4.45285 11.0936 4.92837C11.5632 5.40389 11.879 6.00958 12 6.66683" stroke="#4C5863" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12.82 10.173L11.1267 9.97968C10.72 9.93301 10.32 10.073 10.0334 10.3597L8.80669 11.5863C6.92003 10.6263 5.37336 9.08635 4.41336 7.19301L5.64669 5.95968C5.93336 5.67301 6.07336 5.27301 6.02669 4.86635L5.83336 3.18635C5.75336 2.51301 5.18669 2.00635 4.50669 2.00635H3.35336C2.60003 2.00635 1.97336 2.63301 2.02003 3.38635C2.37336 9.07968 6.92669 13.6263 12.6134 13.9797C13.3667 14.0263 13.9934 13.3997 13.9934 12.6463V11.493C14 10.8197 13.4934 10.253 12.82 10.173Z" fill="#4C5863"/>
+        </svg>`;
+      }
+
+      function renderCallCard(label, opts) {
+        const tile = opts && opts.tile;
+        const pillBg = tile ? "#000c17" : "#001221";
+        const acceptFill = tile ? "#1db954" : "#099f24";
+        const labelColor = tile ? "#f0f0f0" : "#e5e6e8";
+        return `<div class="call-card" style="display:flex;align-items:center;justify-content:space-between;width:156px;height:28px;min-height:28px;max-height:28px;padding:4px 8px 4px 12px;background:${pillBg};border-radius:8px;flex-shrink:0;box-sizing:border-box;gap:6px" data-label="${label}">
+          <div style="display:flex;flex-direction:column;min-width:0;flex:1;justify-content:center">
+            <span class="cc-label" style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:400;color:${labelColor};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:16px">${label}</span>
+          </div>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="flex-shrink:0;align-self:center"><rect width="20" height="20" rx="10" fill="${acceptFill}"/><path d="M14.0202 11.8193L12.6062 11.6579C12.2667 11.6189 11.9327 11.7358 11.6933 11.9752L10.669 12.9995C9.09361 12.1979 7.80213 10.9119 7.00051 9.33096L8.03036 8.30111C8.26973 8.06173 8.38664 7.72773 8.34767 7.38815L8.18623 5.98532C8.11943 5.42308 7.64626 5 7.07845 5H6.1154C5.48635 5 4.96308 5.52328 5.00204 6.15233C5.29708 10.9064 9.09918 14.7029 13.8476 14.998C14.4767 15.0369 14.9999 14.5136 14.9999 13.8846V12.9215C15.0055 12.3593 14.5824 11.8861 14.0202 11.8193Z" fill="white"/></svg>
         </div>`;
       }
 
+      /** Device label text — list + tile (internal person rows only; not office, not external) */
+      function tileDeviceLabelForContact(c) {
+        const pool = ["Desk Phone", "Office Phone", "Soft Phone", "Conference Phone"];
+        let h = 0;
+        const key = String(c.ext) + "\0" + c.name;
+        for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+        return pool[h % pool.length];
+      }
+
+      /** Deterministic location + IANA zone for detail card local time */
+      const CONTACT_DETAIL_LOCATIONS = [
+        { city: "Phoenix", tz: "America/Phoenix" },
+        { city: "Denver", tz: "America/Denver" },
+        { city: "Chicago", tz: "America/Chicago" },
+        { city: "New York", tz: "America/New_York" },
+        { city: "Los Angeles", tz: "America/Los_Angeles" },
+        { city: "Toronto", tz: "America/Toronto" },
+        { city: "Vancouver", tz: "America/Vancouver" },
+        { city: "London", tz: "Europe/London" },
+        { city: "Paris", tz: "Europe/Paris" },
+        { city: "Sydney", tz: "Australia/Sydney" },
+        { city: "Singapore", tz: "Asia/Singapore" },
+        { city: "Tokyo", tz: "Asia/Tokyo" },
+        { city: "Dubai", tz: "Asia/Dubai" },
+        { city: "São Paulo", tz: "America/Sao_Paulo" },
+        { city: "Mexico City", tz: "America/Mexico_City" },
+      ];
+
+      function contactDetailHash(c) {
+        let h = 0;
+        const key = String(c.ext) + "\0" + c.name + "\0" + (c.type || "");
+        for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+        return h;
+      }
+
+      function contactDetailLocationMeta(c) {
+        const loc = CONTACT_DETAIL_LOCATIONS[contactDetailHash(c) % CONTACT_DETAIL_LOCATIONS.length];
+        return loc;
+      }
+
+      function formatTimeZoneAbbrev(tz, when) {
+        try {
+          const parts = new Intl.DateTimeFormat("en-US", {
+            timeZone: tz,
+            timeZoneName: "short",
+          }).formatToParts(when);
+          const p = parts.find((x) => x.type === "timeZoneName");
+          return p ? p.value : "";
+        } catch (e) {
+          return "";
+        }
+      }
+
+      function formatDetailLocalTime(tz) {
+        try {
+          return new Intl.DateTimeFormat("en-US", {
+            timeZone: tz,
+            hour: "numeric",
+            minute: "2-digit",
+          }).format(new Date());
+        } catch (e) {
+          return "—";
+        }
+      }
+
+      /** Internal directory people (monogram) — synthetic corporate email; office / external: none */
+      function contactDetailShowsEmail(c) {
+        return !c.external && c.type === "person";
+      }
+
+      function syntheticEmailFromContact(c) {
+        const parts = c.name.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) return "contact@sangoma.com";
+        const local = parts
+          .map((p) => p.replace(/[^a-zA-Z]/g, ""))
+          .filter(Boolean)
+          .map((p, i) => (i === 0 ? p.toLowerCase() : p.toLowerCase()))
+          .join(".");
+        const seed = contactDetailHash(c);
+        const domains = ["sangoma.com", "teamhub.io", "corp.local"];
+        return `${local || "user"}@${domains[seed % domains.length]}`;
+      }
+
+      function detailFooterDeviceLabel(c) {
+        if (c.external) return "External";
+        if (c.type === "office") {
+          const pool = ["Conference Phone", "Desk Phone", "Office Phone"];
+          return pool[contactDetailHash(c) % pool.length];
+        }
+        return tileDeviceLabelForContact(c);
+      }
+
+      function detailAvatarLargeHtml(c) {
+        const badge = !c.external ? statusBadge(c.status, 22) : "";
+        if (!c.external && c.type === "office") {
+          return `
+            <div class="contact-detail-card__avatar-wrap">
+              <div class="contact-detail-card__avatar">
+                <svg viewBox="0 0 20 20" fill="#4C5863" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M4.37484 2.5C3.57067 2.5 2.9165 3.15417 2.9165 3.95833V15.2083C2.9165 16.0125 3.57067 16.6667 4.37484 16.6667H4.99984V17.2917C4.99984 18.3198 5.84671 19.1667 6.87484 19.1667H8.5415C9.56963 19.1667 10.4165 18.3198 10.4165 17.2917V16.6667H15.6248C16.429 16.6667 17.0832 16.0125 17.0832 15.2083V3.95833C17.0832 3.15417 16.429 2.5 15.6248 2.5H8.33317V16.6667H9.1665V17.2917C9.1665 17.6444 8.89421 17.9167 8.5415 17.9167H6.87484C6.52213 17.9167 6.24984 17.6444 6.24984 17.2917V16.6667H7.08317V2.5H4.37484ZM10.6248 5H14.7915C15.1365 5 15.4165 5.28 15.4165 5.625C15.4165 5.97 15.1365 6.25 14.7915 6.25H10.6248C10.2798 6.25 9.99984 5.97 9.99984 5.625C9.99984 5.28 10.2798 5 10.6248 5ZM10.6248 8.75C10.9698 8.75 11.2498 9.03 11.2498 9.375C11.2498 9.72 10.9698 10 10.6248 10C10.2798 10 9.99984 9.72 9.99984 9.375C9.99984 9.03 10.2798 8.75 10.6248 8.75ZM12.7082 8.75C13.0532 8.75 13.3332 9.03 13.3332 9.375C13.3332 9.72 13.0532 10 12.7082 10C12.3632 10 12.0832 9.72 12.0832 9.375C12.0832 9.03 12.3632 8.75 12.7082 8.75ZM14.7915 8.75C15.1365 8.75 15.4165 9.03 15.4165 9.375C15.4165 9.72 15.1365 10 14.7915 10C14.4465 10 14.1665 9.72 14.1665 9.375C14.1665 9.03 14.4465 8.75 14.7915 8.75ZM10.6248 10.8333C10.9698 10.8333 11.2498 11.1133 11.2498 11.4583C11.2498 11.8033 10.9698 12.0833 10.6248 12.0833C10.2798 12.0833 9.99984 11.8033 9.99984 11.4583C9.99984 11.1133 10.2798 10.8333 10.6248 10.8333ZM12.7082 10.8333C13.0532 10.8333 13.3332 11.1133 13.3332 11.4583C13.3332 11.8033 13.0532 12.0833 12.7082 12.0833C12.3632 12.0833 12.0832 11.8033 12.0832 11.4583C12.0832 11.1133 12.3632 10.8333 12.7082 10.8333ZM14.7915 10.8333C15.1365 10.8333 15.4165 11.1133 15.4165 11.4583C15.4165 11.8033 15.1365 12.0833 14.7915 12.0833C14.4465 12.0833 14.1665 11.8033 14.1665 11.4583C14.1665 11.1133 14.4465 10.8333 14.7915 10.8333ZM10.6248 12.9167C10.9698 12.9167 11.2498 13.1967 11.2498 13.5417C11.2498 13.8867 10.9698 14.1667 10.6248 14.1667C10.2798 14.1667 9.99984 13.8867 9.99984 13.5417C9.99984 13.1967 10.2798 12.9167 10.6248 12.9167ZM12.7082 12.9167C13.0532 12.9167 13.3332 13.1967 13.3332 13.5417C13.3332 13.8867 13.0532 14.1667 12.7082 14.1667C12.3632 14.1667 12.0832 13.8867 12.0832 13.5417C12.0832 13.1967 12.3632 12.9167 12.7082 12.9167ZM14.7915 12.9167C15.1365 12.9167 15.4165 13.1967 15.4165 13.5417C15.4165 13.8867 15.1365 14.1667 14.7915 14.1667C14.4465 14.1667 14.1665 13.8867 14.1665 13.5417C14.1665 13.1967 14.4465 12.9167 14.7915 12.9167Z"/>
+                </svg>
+              </div>
+              ${badge}
+            </div>`;
+        }
+        const initials = c.name
+          .split(" ")
+          .map((p) => p[0])
+          .slice(0, 2)
+          .join("")
+          .toUpperCase();
+        return `
+          <div class="contact-detail-card__avatar-wrap">
+            <div class="contact-detail-card__avatar">${initials}</div>
+            ${badge}
+          </div>`;
+      }
+
+      let contactDetailTimeTimer = null;
+
+      /** Same pill markup + tab-pill hover/cursor as Unattended calls (`uaPill`) */
+      function contactDetailExtensionPillHtml(c) {
+        const text = formatExtForDisplay(c);
+        const inner = hlText(text, state.searchQuery || "");
+        return (
+          '<div class="tab-pill" style="display:inline-flex;align-items:center;justify-content:center;height:24px;padding:4px 8px;border:1px solid #D1DAEB;border-radius:24px;background:#fff">' +
+          '<span style="font-family:\'Open Sans\',sans-serif;font-size:12px;font-weight:700;color:#142B53;letter-spacing:1.07px;text-transform:uppercase;line-height:16px">' +
+          inner +
+          "</span></div>"
+        );
+      }
+
+      function fillContactDetailModal(c) {
+        const meta = contactDetailLocationMeta(c);
+        const tz = meta.tz;
+        const abbrev = formatTimeZoneAbbrev(tz, new Date()) || meta.city.slice(0, 3).toUpperCase();
+        const host = document.getElementById("contactDetailBody");
+        if (!host) return;
+
+        const showEmail = contactDetailShowsEmail(c);
+        const emailBlock = showEmail
+          ? `<p class="contact-detail-card__label">Email</p>
+             <p class="contact-detail-card__value contact-detail-card__value--email">${syntheticEmailFromContact(c)}</p>
+             <hr class="contact-detail-card__divider" />`
+          : "";
+
+        host.innerHTML = `
+          <div class="contact-detail-card__header">
+            ${detailAvatarLargeHtml(c)}
+            <div class="contact-detail-card__title-block">
+              <p class="contact-detail-card__title">${c.name}</p>
+              <p class="contact-detail-card__location">Location: ${meta.city}</p>
+            </div>
+          </div>
+          <hr class="contact-detail-card__divider" />
+          ${emailBlock}
+          <p class="contact-detail-card__label" id="contactDetailTimeLabel">Local Time (${abbrev})</p>
+          <p class="contact-detail-card__value" id="contactDetailLocalTime">${formatDetailLocalTime(tz)}</p>
+          <hr class="contact-detail-card__divider" />
+          <div class="contact-detail-card__footer">
+            ${contactDetailExtensionPillHtml(c)}
+            <span class="contact-detail-card__device">${detailFooterDeviceLabel(c)}</span>
+          </div>
+        `;
+
+        if (contactDetailTimeTimer) clearInterval(contactDetailTimeTimer);
+        contactDetailTimeTimer = setInterval(function () {
+          var scrimEl = document.getElementById("contactDetailScrim");
+          var scrimOpen = scrimEl && scrimEl.classList.contains("contact-detail-scrim--open");
+          const el = document.getElementById("contactDetailLocalTime");
+          const lbl = document.getElementById("contactDetailTimeLabel");
+          if (!scrimOpen || !el) return;
+          el.textContent = formatDetailLocalTime(tz);
+          const ab = formatTimeZoneAbbrev(tz, new Date()) || abbrev;
+          if (lbl) lbl.textContent = `Local Time (${ab})`;
+        }, 30000);
+      }
+
+      function getContactDetailAnchorElement(trigger) {
+        if (!trigger) return null;
+        if (
+          trigger.matches(".contact-row-name-text") ||
+          (trigger.matches(".contact-tile-name") && trigger.classList.contains("contact-detail-open"))
+        ) {
+          return trigger;
+        }
+        const row = trigger.closest(".contact-row, .contact-card");
+        if (row) {
+          const nm = row.querySelector(".contact-row-name-text, .contact-tile-name.contact-detail-open");
+          if (nm) return nm;
+        }
+        return trigger;
+      }
+
+      function positionContactDetailCard(anchorEl) {
+        const scrim = document.getElementById("contactDetailScrim");
+        const card = scrim && scrim.querySelector(".contact-detail-card");
+        if (!card || !anchorEl) return;
+        const rect = anchorEl.getBoundingClientRect();
+        const gap = 6;
+        const margin = 8;
+        const cardWidth = 220;
+
+        function apply() {
+          const cr = card.getBoundingClientRect();
+          let left = rect.left;
+          let top = rect.bottom + gap;
+          if (left + cardWidth > window.innerWidth - margin) {
+            left = Math.max(margin, window.innerWidth - margin - cardWidth);
+          }
+          if (left < margin) left = margin;
+          if (top + cr.height > window.innerHeight - margin && rect.top - cr.height - gap > margin) {
+            top = rect.top - cr.height - gap;
+          }
+          if (top < margin) top = margin;
+          card.style.left = left + "px";
+          card.style.top = top + "px";
+        }
+
+        card.style.width = cardWidth + "px";
+        card.style.maxWidth = cardWidth + "px";
+        requestAnimationFrame(function () {
+          requestAnimationFrame(apply);
+        });
+      }
+
+      function openContactDetail(filteredIndex, anchorEl) {
+        const c = state.filtered[filteredIndex];
+        if (!c) return;
+        const scrim = document.getElementById("contactDetailScrim");
+        if (!scrim) return;
+        fillContactDetailModal(c);
+        scrim.classList.remove("hidden");
+        scrim.classList.add("contact-detail-scrim--open");
+        scrim.style.display = "block";
+        scrim.setAttribute("aria-hidden", "false");
+        const anchor = getContactDetailAnchorElement(anchorEl);
+        positionContactDetailCard(anchor);
+      }
+
+      function closeContactDetail() {
+        const scrim = document.getElementById("contactDetailScrim");
+        if (!scrim) return;
+        if (contactDetailTimeTimer) {
+          clearInterval(contactDetailTimeTimer);
+          contactDetailTimeTimer = null;
+        }
+        scrim.classList.add("hidden");
+        scrim.classList.remove("contact-detail-scrim--open");
+        scrim.style.display = "none";
+        scrim.setAttribute("aria-hidden", "true");
+      }
+
+      function bindContactDetailTriggers(root) {
+        const scope = root || document;
+        scope.querySelectorAll(".contact-detail-open[data-detail-idx]").forEach((el) => {
+          el.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const i = parseInt(el.getAttribute("data-detail-idx"), 10);
+            if (!isNaN(i)) openContactDetail(i, el);
+          });
+        });
+      }
+
       function renderRow(c, idx) {
-        const isOffice = c.type === "office";
+        const isOffice = !c.external && c.type === "office";
+        const deviceLabelHtml =
+          !c.external && !isOffice
+            ? `<button type="button" class="contact-device-label contact-detail-open" data-detail-idx="${idx}">${tileDeviceLabelForContact(c)}</button>`
+            : "";
         const subText =
-          c.status === "busy" ? c.sub || "On a call with unknown" : c.sub;
+          c.external ? "" : c.status === "busy" ? c.sub || "On a call with unknown" : c.sub;
         const sub = subText
-          ? `<div class="flex items-center gap-1" style="margin-top:2px">
-               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                 <path d="M9.3667 1.3335C10.7255 1.47668 11.9948 2.07936 12.9646 3.04188C13.9344 4.0044 14.5466 5.2691 14.7 6.62683M9.3667 4.00016C10.0224 4.12945 10.624 4.45285 11.0936 4.92837C11.5632 5.40389 11.879 6.00958 12 6.66683" stroke="#4C5863" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                 <path d="M12.82 10.173L11.1267 9.97968C10.72 9.93301 10.32 10.073 10.0334 10.3597L8.80669 11.5863C6.92003 10.6263 5.37336 9.08635 4.41336 7.19301L5.64669 5.95968C5.93336 5.67301 6.07336 5.27301 6.02669 4.86635L5.83336 3.18635C5.75336 2.51301 5.18669 2.00635 4.50669 2.00635H3.35336C2.60003 2.00635 1.97336 2.63301 2.02003 3.38635C2.37336 9.07968 6.92669 13.6263 12.6134 13.9797C13.3667 14.0263 13.9934 13.3997 13.9934 12.6463V11.493C14 10.8197 13.4934 10.253 12.82 10.173V10.173Z" fill="#4C5863"/>
-               </svg>
-               <span style="font-family:'Open Sans',sans-serif;font-weight:600;font-size:13px;color:#4c5863;letter-spacing:0.25px">${subText}</span>
+          ? `<div class="flex min-w-0 items-center gap-1" style="margin-top:2px">
+               ${busyLineIcon()}
+               <span class="contact-busy-sub-text">${subText}</span>
              </div>`
           : "";
 
         let rightHalf = '<div class="w-1/2"></div>';
-        if (c.incomingCalls && c.incomingCalls.length > 0) {
-          const cards = c.incomingCalls.map(label => renderCallCard(label)).join('');
+        if (!c.external && c.incomingCalls && c.incomingCalls.length > 0) {
+          const cards = c.incomingCalls.map((label) => renderCallCard(label)).join("");
           rightHalf = `<div class="w-1/2 flex flex-col gap-1 justify-center py-2" style="padding-left:32px">
             <span style="font-family:'Poppins',sans-serif;font-size:12px;font-weight:400;color:#4c5863;line-height:16px">Incoming Calls</span>
             <div style="display:flex;flex-wrap:wrap;gap:6px">${cards}</div>
           </div>`;
         }
 
+        const avatarLeading = isOffice
+          ? `<button type="button" class="contact-detail-open inline-flex h-10 w-10 shrink-0 items-center justify-center border-0 bg-transparent p-0 cursor-pointer" data-detail-idx="${idx}" aria-label="Open contact details for ${c.name.replace(/"/g, "&quot;")}">${avatarOffice(c)}</button>`
+          : avatarPerson(c);
+
         return `
           <div class="row-hover contact-row" style="min-height:56px;height:auto">
-            <div class="flex w-1/2 items-center gap-2 py-2">
-              <button class="flex h-10 w-10 shrink-0 items-center justify-center" data-fav="${idx}" title="Favorite">${starSvg(c.fav)}</button>
-              ${isOffice ? avatarOffice(c) : avatarPerson(c)}
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-2">
-                  <span class="truncate text-sm font-semibold text-ink-900" style="letter-spacing:0.25px">${hlText(c.name, state.searchQuery)}</span>
-                  <span class="ext-pill">${hlText(c.ext, state.searchQuery)}</span>
+            <div class="flex min-w-0 w-1/2 items-center gap-2 py-2">
+              <button class="flex h-10 w-10 shrink-0 items-center justify-center" data-fav="${idx}" title="${c.fav ? "Remove from favorites" : "Add to favorites"}">${starSvg(c.fav)}</button>
+              ${avatarLeading}
+              <div class="contact-row-meta">
+                <div class="contact-row-name-line">
+                  <button type="button" class="contact-row-name-text contact-detail-open" data-detail-idx="${idx}">${hlText(c.name, state.searchQuery)}</button>
+                  <div class="contact-row-ext-cluster">
+                    <span class="ext-pill">${hlText(formatExtForDisplay(c), state.searchQuery)}</span>
+                    ${deviceLabelHtml}
+                  </div>
                 </div>
                 ${sub}
               </div>
@@ -1443,39 +2356,58 @@
       }
 
       function renderGridCard(c, idx) {
-        const isOffice = c.type === "office";
-        const subText =
-          c.status === "busy" ? c.sub || "On a call" : "";
-        const incomingHint =
-          c.incomingCalls && c.incomingCalls.length
-            ? `<p class="mt-2 text-xs text-ink-500">${c.incomingCalls.length} incoming call${
-                c.incomingCalls.length === 1 ? "" : "s"
-              }</p>`
+        const isOffice = !c.external && c.type === "office";
+        const deviceLabelHtml =
+          !c.external && !isOffice
+            ? `<button type="button" class="contact-device-label contact-detail-open" data-detail-idx="${idx}">${tileDeviceLabelForContact(c)}</button>`
             : "";
+        const subText =
+          c.external ? "" : c.status === "busy" ? c.sub || "On a call" : "";
+        const statusRow = subText
+          ? `<div class="contact-tile-status-below">
+               <div class="contact-tile-status-row">
+                 ${busyLineIcon()}
+                 <span class="contact-busy-sub-text contact-tile-status-text">${subText}</span>
+               </div>
+             </div>`
+          : "";
+        const incomingBlock =
+          !c.external && c.incomingCalls && c.incomingCalls.length > 0
+            ? `<div class="contact-tile-incoming-section">
+                 <span class="contact-tile-incoming-label">Incoming Calls</span>
+                 <div class="contact-tile-incoming-chips">${c.incomingCalls.map((lab) => renderCallCard(lab, { tile: true })).join("")}</div>
+               </div>`
+            : "";
+
+        const tileAvatar = isOffice
+          ? `<button type="button" class="contact-detail-open inline-flex h-10 w-10 shrink-0 items-center justify-center border-0 bg-transparent p-0 cursor-pointer" data-detail-idx="${idx}" aria-label="Open contact details for ${c.name.replace(/"/g, "&quot;")}">${avatarOffice(c)}</button>`
+          : avatarPerson(c);
+
         return `
-          <div class="row-hover flex flex-col rounded-xl border border-ink-100 bg-white p-3 shadow-soft">
-            <div class="flex items-start gap-2">
-              ${isOffice ? avatarOffice(c) : avatarPerson(c)}
-              <div class="min-w-0 flex-1">
-                <div class="truncate text-sm font-semibold text-ink-900" style="letter-spacing:0.25px">${hlText(
-                  c.name,
-                  state.searchQuery
-                )}</div>
-                <span class="ext-pill mt-1 inline-block">${hlText(c.ext, state.searchQuery)}</span>
-                ${
-                  subText
-                    ? `<p class="mt-2 line-clamp-2 text-xs font-semibold text-ink-600">${subText}</p>`
-                    : ""
-                }
-                ${incomingHint}
+          <div class="contact-card row-hover">
+            <div class="contact-tile-main">
+              <div class="contact-tile-leading">
+                <button
+                  type="button"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center"
+                  data-fav="${idx}"
+                  title="${c.fav ? "Remove from favorites" : "Add to favorites"}"
+                >${starSvg(c.fav)}</button>
+                ${tileAvatar}
               </div>
-              <div class="flex shrink-0 flex-col items-end gap-1">
-                <button class="flex h-8 w-8 items-center justify-center" data-fav="${idx}" title="Favorite">${starSvg(
-                  c.fav
-                )}</button>
-                <button class="flex items-center justify-center" title="Call">${callIcon()}</button>
+              <div class="contact-tile-body">
+                <div class="contact-tile-name-row">
+                  <button type="button" class="contact-tile-name contact-detail-open truncate text-sm font-semibold text-ink-900" style="letter-spacing:0.25px" data-detail-idx="${idx}">${hlText(c.name, state.searchQuery)}</button>
+                </div>
+                <div class="contact-tile-ext-row">
+                  <span class="ext-pill">${hlText(formatExtForDisplay(c), state.searchQuery)}</span>
+                  ${deviceLabelHtml}
+                </div>
               </div>
+              <button type="button" class="shrink-0 flex items-center justify-center w-[20px]" title="Call">${callIcon()}</button>
             </div>
+            ${statusRow}
+            ${incomingBlock}
           </div>`;
       }
 
@@ -1525,11 +2457,11 @@
 
         if (contactViewMode === "grid") {
           listEl.className =
-            "scrollbar-thin min-h-0 flex-1 overflow-y-auto px-4 pb-3 pt-1";
+            "scrollbar-thin flex min-h-0 flex-1 flex-col justify-start overflow-y-auto px-4 pb-3 pt-[20px]";
           listEl.innerHTML =
             pageItems.length === 0
               ? `<div class="px-2 py-8 text-center text-sm text-ink-500">No contacts match your search.</div>`
-              : `<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">${pageItems
+              : `<div class="contact-grid shrink-0">${pageItems
                   .map((c, i) => renderGridCard(c, start + i))
                   .join("")}</div>`;
         } else {
@@ -1540,16 +2472,27 @@
               : pageItems.map((c, i) => renderRow(c, start + i)).join("");
         }
 
+        const contactSearchRow = document.getElementById("contactSearchRow");
+        if (contactSearchRow) {
+          if (contactViewMode === "grid") {
+            contactSearchRow.classList.remove("border-b", "border-ink-100");
+          } else {
+            contactSearchRow.classList.add("border-b", "border-ink-100");
+          }
+        }
+
         // attach favorite toggles
         listEl.querySelectorAll("[data-fav]").forEach((btn) => {
           btn.addEventListener("click", (e) => {
             e.stopPropagation();
             const i = parseInt(btn.getAttribute("data-fav"), 10);
             state.filtered[i].fav = !state.filtered[i].fav;
-            // Sync into source if same ref (it is — we copied via slice of same objects)
+            rebuildFilteredList();
             refresh();
           });
         });
+
+        bindContactDetailTriggers(listEl);
 
         rangeLabel.textContent = `${
           state.filtered.length === 0 ? 0 : start + 1
@@ -1610,18 +2553,19 @@
         refresh();
       };
 
-      // search filter
-      document.getElementById("contactSearch").addEventListener("input", (e) => {
-        const q = e.target.value.trim().toLowerCase();
-        state.searchQuery = e.target.value.trim();
-        state.filtered = contacts.filter(
-          (c) =>
-            c.name.toLowerCase().includes(q) || c.ext.toLowerCase().includes(q)
-        );
-        state.page = 1;
-        refresh();
-      });
+      // search filter (combined with group chips via rebuildFilteredList)
+      const contactSearchEl = document.getElementById("contactSearch");
+      if (contactSearchEl) {
+        function runContactSearch() {
+          state.page = 1;
+          rebuildFilteredList();
+          refresh();
+        }
+        contactSearchEl.addEventListener("input", runContactSearch);
+        contactSearchEl.addEventListener("search", runContactSearch);
+      }
 
+      rebuildFilteredList();
       refresh();
 
       /* ------------------- Call volume fill + contacts view toggle ---- */
@@ -1641,12 +2585,13 @@
         volumeSlider.addEventListener("change", syncVolumeFill);
       }
 
-      /* Line selector (TeamHub / Hardphone) — dropdown matches design ref */
+      /* Line selector (TeamHub Extension / YeaLink CP965) — dropdown matches design ref */
       (function initLineSelector() {
         const wrap = document.getElementById("lineSelectorWrap");
         const btn = document.getElementById("lineSelectorBtn");
         const menu = document.getElementById("lineSelectorMenu");
         const labelEl = document.getElementById("lineSelectorLabel");
+        const chevronEl = document.getElementById("lineSelectorChevron");
         if (!wrap || !btn || !menu) return;
 
         let open = false;
@@ -1654,6 +2599,7 @@
           open = v;
           menu.classList.toggle("hidden", !v);
           btn.setAttribute("aria-expanded", v ? "true" : "false");
+          if (chevronEl) chevronEl.style.transform = v ? "rotate(180deg)" : "";
         }
 
         btn.addEventListener("click", (e) => {
@@ -1723,11 +2669,22 @@
         const closeBtn = document.getElementById("phoneSettingsClose");
         if (!openBtn || !scrim || !closeBtn) return;
 
+        function showPhoneSettingsSection(section) {
+          scrim.querySelectorAll(".ps-settings-panel").forEach(function (p) {
+            p.classList.toggle("hidden", p.id !== "ps-panel-" + section);
+          });
+          scrim.querySelectorAll(".ps-menu-item").forEach(function (item) {
+            var sec = item.getAttribute("data-section");
+            item.classList.toggle("active", sec === section);
+          });
+        }
+
         function showModal() {
           scrim.classList.remove("hidden");
           scrim.style.display = "flex";
           var settingsMenu = document.getElementById("settingsMenu");
           if (settingsMenu) settingsMenu.classList.add("hidden");
+          showPhoneSettingsSection("contacts");
         }
         function hideModal() {
           scrim.classList.add("hidden");
@@ -1739,10 +2696,13 @@
         scrim.addEventListener("click", function(e) { if (e.target === scrim) hideModal(); });
         document.addEventListener("keydown", function(e) { if (e.key === "Escape") hideModal(); });
 
-        // Sidebar active state switching - hover only, no click
-        scrim.querySelectorAll(".ps-menu-item:not(.active)").forEach(function(item) {
-          item.style.cursor = "default";
-        });
+        var contactsMenuBtn = scrim.querySelector('.ps-menu-item[data-section="contacts"]');
+        if (contactsMenuBtn) {
+          contactsMenuBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            showPhoneSettingsSection("contacts");
+          });
+        }
 
         // Extensions display edit toggle
         var extCollapsed = document.getElementById("extCollapsed");
@@ -1765,18 +2725,6 @@
         if (extCancelBtn) extCancelBtn.addEventListener("click", hideExtExpanded);
       });
 
-      /* ----------------------------- Tabs ------------------------------- */
-      document.querySelectorAll("#tabs button[data-tab]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll("#tabs button[data-tab]").forEach((b) => {
-            b.classList.remove("tab-active");
-            b.classList.add("tab-inactive");
-          });
-          btn.classList.remove("tab-inactive");
-          btn.classList.add("tab-active");
-        });
-      });
-
       /* ------------------------- Group chips ---------------------------- */
       const checkIconHTML = `<svg width="16" height="16" viewBox="0 0 20 20" fill="#142B53" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.50016 13.4998L4.00016 9.99984L2.8335 11.1665L7.50016 15.8332L17.5002 5.83317L16.3335 4.6665L7.50016 13.4998Z"/></svg>`;
       function renderChip(btn, selected) {
@@ -1789,9 +2737,61 @@
           btn.innerHTML = label;
         }
       }
+      function contactMatchesChip(c, group) {
+        switch (group) {
+          case "favorites":
+            return !!c.fav;
+          case "internal":
+            return !c.external;
+          case "external":
+            return !!c.external;
+          case "management":
+            return ["4040", "5050", "6209", "7733", "4111"].includes(c.ext);
+          case "ny-office":
+            return c.ext.startsWith("22");
+          case "sales":
+            return (
+              /sales|queue|reception|customer/i.test(c.name) ||
+              ["1000", "1010", "6209", "2200"].includes(c.ext)
+            );
+          default:
+            return true;
+        }
+      }
+
+      function filterByActiveChips(list) {
+        const chip = document.querySelector("#groupChips .chip-selected[data-group]");
+        const group = chip && chip.dataset.group;
+        if (!group) return list;
+        return list.filter((c) => contactMatchesChip(c, group));
+      }
+
+      function rebuildFilteredList() {
+        const input = document.getElementById("contactSearch");
+        const q = (input && input.value.trim().toLowerCase()) || "";
+        state.searchQuery = (input && input.value.trim()) || "";
+        let list = contacts.filter((c) => {
+          if (!q) return true;
+          if (c.name.toLowerCase().includes(q)) return true;
+          const extRaw = String(c.ext).toLowerCase();
+          if (extRaw.includes(q)) return true;
+          const qDigits = q.replace(/\D/g, "");
+          if (qDigits.length > 0 && String(c.ext).replace(/\D/g, "").includes(qDigits)) return true;
+          return false;
+        });
+        list = filterByActiveChips(list);
+        state.filtered = list;
+      }
+
       document.querySelectorAll("#groupChips .chip").forEach((btn) => {
         const initiallySelected = btn.classList.contains("chip-selected");
         renderChip(btn, initiallySelected);
+        btn.addEventListener("click", () => {
+          document.querySelectorAll("#groupChips .chip").forEach((b) => renderChip(b, b === btn));
+          state.page = 1;
+          rebuildFilteredList();
+          refresh();
+        });
       });
 
       /* ── Tab switching ── */
@@ -1806,13 +2806,25 @@
         tabBtns.forEach(function(btn) {
           btn.addEventListener("click", function() {
             var tab = btn.dataset.tab;
-            // Update tab styles
-            tabBtns.forEach(function(b) { b.className = b.className.replace("tab-active","tab-inactive"); });
-            btn.className = btn.className.replace("tab-inactive","tab-active");
-            // Show/hide panels
-            if (panels.contacts) panels.contacts.style.display = (tab === "contacts") ? "" : "none";
-            if (panels.unattended) panels.unattended.style.display = (tab === "unattended") ? "flex" : "none";
-            if (panels.parked) panels.parked.style.display = (tab === "parked") ? "flex" : "none";
+            tabBtns.forEach(function(b) {
+              b.classList.remove("tab-active");
+              b.classList.add("tab-inactive");
+              b.setAttribute("aria-selected", "false");
+            });
+            btn.classList.remove("tab-inactive");
+            btn.classList.add("tab-active");
+            btn.setAttribute("aria-selected", "true");
+            if (panels.contacts)
+              panels.contacts.style.display = tab === "contacts" ? "flex" : "none";
+            if (panels.unattended)
+              panels.unattended.style.display = tab === "unattended" ? "flex" : "none";
+            if (panels.parked)
+              panels.parked.style.display = tab === "parked" ? "flex" : "none";
+            // Clear parked notification once the user opens the Parked tab (they've seen the update).
+            if (tab === "parked") {
+              var parkedBadge = document.getElementById("parkedBadge");
+              if (parkedBadge) parkedBadge.style.display = "none";
+            }
           });
         });
 
@@ -1827,6 +2839,15 @@
           { recipient: "Stanley Miller", rExt: "7756", location: "Austin", caller: "Theresa Webb", cExt: "(308) 555-0121", type: "Internal", typeColor: "#158fcf", date: "2/11/2023", time: "8:21 AM" }
         ];
         var uaContainer = document.getElementById("unattendedRows");
+        /** @type {'all'|'internal'|'external'} */
+        var uaTypeFilter = "all";
+
+        function uaMatchesTypeFilter(r) {
+          if (uaTypeFilter === "all") return true;
+          return String(r.type || "")
+            .toLowerCase()
+            .trim() === uaTypeFilter;
+        }
 
         function uaPill(text, q) {
           return '<div class="tab-pill" style="display:inline-flex;align-items:center;justify-content:center;height:24px;padding:4px 8px;border:1px solid #D1DAEB;border-radius:24px;background:#fff">' +
@@ -1836,11 +2857,21 @@
         function renderUaRows(q) {
           if (!uaContainer) return;
           var ql = (q || '').toLowerCase();
-          var filtered = !ql ? uaRows : uaRows.filter(function(r) {
-            return r.recipient.toLowerCase().includes(ql) || r.rExt.toLowerCase().includes(ql) ||
-              r.location.toLowerCase().includes(ql) || r.caller.toLowerCase().includes(ql) ||
-              r.cExt.toLowerCase().includes(ql) || r.type.toLowerCase().includes(ql);
-          });
+          var afterType = uaRows.filter(uaMatchesTypeFilter);
+          var filtered = !ql
+            ? afterType
+            : afterType.filter(function(r) {
+                return (
+                  r.recipient.toLowerCase().includes(ql) ||
+                  r.rExt.toLowerCase().includes(ql) ||
+                  r.location.toLowerCase().includes(ql) ||
+                  r.caller.toLowerCase().includes(ql) ||
+                  r.cExt.toLowerCase().includes(ql) ||
+                  r.type.toLowerCase().includes(ql) ||
+                  r.date.toLowerCase().includes(ql) ||
+                  r.time.toLowerCase().includes(ql)
+                );
+              });
           uaContainer.innerHTML = filtered.map(function(r) {
             return '<div style="display:flex;align-items:flex-start;gap:8px;padding:16px;border-bottom:1px solid #e5e6e8;height:76px">' +
               '<div style="flex:1;display:flex;flex-direction:column;gap:4px;align-items:flex-start">' +
@@ -1868,9 +2899,28 @@
         }
         renderUaRows('');
 
+        document.querySelectorAll('#uaFilterChips [data-ua-filter]').forEach(function(chip) {
+          chip.addEventListener("click", function() {
+            var f = chip.getAttribute("data-ua-filter") || "all";
+            if (f !== "all" && f !== "internal" && f !== "external") return;
+            uaTypeFilter = f;
+            document.querySelectorAll('#uaFilterChips [data-ua-filter]').forEach(function(c) {
+              var sel = c === chip;
+              c.classList.toggle("chip-selected", sel);
+              c.setAttribute("aria-pressed", sel ? "true" : "false");
+            });
+            var uaSearchEl = document.getElementById("unattendedSearch");
+            renderUaRows(uaSearchEl ? uaSearchEl.value.trim() : "");
+          });
+        });
+
         var uaSearchEl = document.getElementById("unattendedSearch");
         if (uaSearchEl) {
-          uaSearchEl.addEventListener("input", function(e) { renderUaRows(e.target.value.trim()); });
+          function uaApplySearch(el) {
+            renderUaRows(el.value.trim());
+          }
+          uaSearchEl.addEventListener("input", function(e) { uaApplySearch(e.target); });
+          uaSearchEl.addEventListener("search", function(e) { uaApplySearch(e.target); });
         }
 
         // Parked calls data and rendering
@@ -1897,20 +2947,27 @@
         function renderParkedRows(q) {
           if (!parkedContainer) return;
           var ql = (q || '').toLowerCase();
+          parkedData.forEach(function (r) {
+            if (!r.hidden && r._parkStartMs == null) {
+              r._parkStartMs = Date.now() - parseMmSsToSec(r.timeout) * 1000;
+            }
+          });
           var filtered = parkedData.filter(function(r) {
             if (r.hidden) return false;
             if (!ql) return true;
             return r.from.toLowerCase().includes(ql) || r.ext.toLowerCase().includes(ql) ||
-              r.position.toLowerCase().includes(ql) || r.timeout.toLowerCase().includes(ql);
+              r.position.toLowerCase().includes(ql) || r.timeout.toLowerCase().includes(ql) ||
+              r.date.toLowerCase().includes(ql) || r.time.toLowerCase().includes(ql);
           });
           parkedContainer.innerHTML = filtered.map(function(r) {
+            var elapsedSec = (Date.now() - r._parkStartMs) / 1000;
             return '<div style="display:flex;align-items:flex-start;gap:8px;padding:16px;border-bottom:1px solid #e5e6e8;height:76px;background:#fff">' +
               '<div style="flex:1;display:flex;flex-direction:column;gap:4px;align-items:flex-start">' +
                 '<span style="font-family:\'Open Sans\',sans-serif;font-size:14px;font-weight:600;color:#001221;letter-spacing:0.25px;line-height:20px">' + hlText(r.from, q) + '</span>' +
                 pPill(r.ext, q) +
               '</div>' +
               '<div style="flex:1"><span style="font-family:\'Open Sans\',sans-serif;font-size:14px;font-weight:400;color:#001221;letter-spacing:0.25px;line-height:20px">' + hlText(r.position, q) + '</span></div>' +
-              '<div style="flex:1"><span style="font-family:\'Open Sans\',sans-serif;font-size:14px;font-weight:400;color:#4c5863;letter-spacing:0.25px;line-height:20px">' + hlText(r.timeout, q) + '</span></div>' +
+              '<div style="flex:1"><span class="park-timeout-live" data-park-start-ms="' + r._parkStartMs + '" style="font-family:\'Open Sans\',sans-serif;font-size:14px;font-weight:400;color:#4c5863;letter-spacing:0.25px;line-height:20px">' + formatMmSs(elapsedSec) + '</span></div>' +
               '<div style="flex:1;display:flex;flex-direction:column">' +
                 '<span style="font-family:\'Open Sans\',sans-serif;font-size:14px;font-weight:400;color:#4c5863;letter-spacing:0.25px;line-height:20px">' + hlText(r.date, q) + '</span>' +
                 '<span style="font-family:\'Open Sans\',sans-serif;font-size:14px;font-weight:400;color:#7f888f;letter-spacing:0.25px;line-height:20px">' + hlText(r.time, q) + '</span>' +
@@ -1923,7 +2980,11 @@
 
         var parkedSearchEl = document.getElementById("parkedSearch");
         if (parkedSearchEl) {
-          parkedSearchEl.addEventListener("input", function(e) { renderParkedRows(e.target.value.trim()); });
+          function parkedApplySearch(el) {
+            renderParkedRows(el.value.trim());
+          }
+          parkedSearchEl.addEventListener("input", function(e) { parkedApplySearch(e.target); });
+          parkedSearchEl.addEventListener("search", function(e) { parkedApplySearch(e.target); });
         }
 
         // Kebab action menu
@@ -1962,31 +3023,99 @@
           actionMenu.addEventListener("click", function(e) { e.stopPropagation(); });
         }
 
-        // P (park) button click: hide top call card, show first parked row, switch to parked tab
+        function formatParkDialDisplay(raw) {
+          var d = String(raw || '').replace(/\D/g, '');
+          if (d.length === 11 && d.charAt(0) === '1') d = d.slice(1);
+          if (d.length === 10) {
+            return '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6);
+          }
+          return (raw && String(raw).trim()) || '';
+        }
+
+        // P (park) button click: hide top call card, prepend parked row from ongoing-call metadata (same as card)
         var parkBtn = document.querySelector('.btn-pause');
         if (parkBtn) {
           parkBtn.addEventListener('click', function() {
             // Hide top call card
             var topCard = document.getElementById('topCallCard');
             if (topCard) topCard.style.display = 'none';
-            // Unhide first parked row
-            parkedData[0].hidden = false;
+            var metaRoot = document.getElementById('ongoingTopCallParkMeta');
+            var metaFromEl = document.getElementById('parkMetaFrom');
+            var metaExtEl = document.getElementById('parkMetaExt');
+            var dialEl = document.getElementById('dialInput');
+            var rawE164 = metaRoot && metaRoot.getAttribute('data-park-e164');
+            var digitsLen = rawE164 ? rawE164.replace(/\D/g, '').length : 0;
+            var formattedCard =
+              rawE164 && digitsLen >= 10 ? formatParkDialDisplay(rawE164) : '';
+            var fromMeta = metaFromEl ? metaFromEl.textContent.trim() : '';
+            var extMeta = metaExtEl ? metaExtEl.textContent.trim() : '';
+            var dialFmt =
+              dialEl && dialEl.value && dialEl.value.replace(/\D/g, '').length >= 7
+                ? formatParkDialDisplay(dialEl.value)
+                : '';
+            var from = formattedCard || fromMeta || dialFmt || 'Unknown caller';
+            var ext = formattedCard || extMeta || dialFmt || '—';
+            var now = new Date();
+            var dateStr = now.toLocaleDateString('en-US', {
+              month: 'numeric',
+              day: 'numeric',
+              year: 'numeric',
+            });
+            var timeStr = now.toLocaleTimeString('en-US', {
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true,
+            });
+            var position = String(1000 + Math.floor(Math.random() * 9000));
+            parkedData.unshift({
+              from: from,
+              ext: ext,
+              position: position,
+              timeout: '00:01',
+              date: dateStr,
+              time: timeStr,
+              hidden: false,
+              _parkStartMs: Date.now(),
+            });
             var pq = parkedSearchEl ? parkedSearchEl.value.trim() : '';
             renderParkedRows(pq);
-            // Show notification badge on Parked tab
-            var badge = document.getElementById('parkedBadge');
-            if (badge) badge.style.display = 'block';
+            // Purple badge only when parked from Contacts or Unattended — not when already on Parked.
+            var badge = document.getElementById("parkedBadge");
+            var parkedTabBtn = document.getElementById("tab-parked");
+            var onParkedTab =
+              parkedTabBtn && parkedTabBtn.getAttribute("aria-selected") === "true";
+            if (badge) badge.style.display = onParkedTab ? "none" : "block";
             // Shift remaining content up under "Ongoing Calls" bar
             var belowGroup = document.getElementById('belowTopCard');
             if (belowGroup) belowGroup.setAttribute('transform', 'translate(0, -108)');
             // Resize SVG to remove empty space
             var svg = belowGroup.closest('svg');
             if (svg) {
-              svg.setAttribute('height', '272');
               svg.setAttribute('viewBox', '0 0 302 272');
             }
           });
         }
+      })();
+
+      (function initContactDetailDismiss() {
+        var cdClose = document.getElementById("contactDetailClose");
+        if (cdClose) cdClose.addEventListener("click", closeContactDetail);
+        document.addEventListener(
+          "pointerdown",
+          function (e) {
+            var s = document.getElementById("contactDetailScrim");
+            if (!s || !s.classList.contains("contact-detail-scrim--open")) return;
+            if (e.target.closest(".contact-detail-card")) return;
+            if (e.target.closest(".contact-detail-open")) return;
+            closeContactDetail();
+          },
+          true
+        );
+        document.addEventListener("keydown", function (e) {
+          if (e.key !== "Escape") return;
+          var s = document.getElementById("contactDetailScrim");
+          if (s && s.classList.contains("contact-detail-scrim--open")) closeContactDetail();
+        });
       })();
     </script>
     <div id="phoneSettingsScrim" class="hidden" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.35);display:none;align-items:center;justify-content:center">
@@ -2001,46 +3130,71 @@
         <!-- Body -->
         <div style="display:flex;flex:1;min-height:0;overflow:hidden">
           <!-- Sidebar -->
-          <div style="width:208px;background:#f2f2f3;padding:4px 0;overflow-y:auto;flex-shrink:0">
-            <button class="ps-menu-item" data-section="general" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:none;cursor:default;text-align:left">
+          <div class="ps-settings-sidebar" style="width:208px;overflow-y:auto;flex-shrink:0">
+            <button type="button" class="ps-menu-item" data-section="general" disabled>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.85 5.7166C15.1833 5.2166 13.4667 5.68327 12.3583 6.7916L10 8.88327L8.73333 9.99994H8.74167L6.5 11.9916C5.825 12.6666 4.875 12.9499 3.9 12.7583C2.85833 12.5499 2 11.7166 1.75833 10.6833C1.325 8.82493 2.725 7.18327 4.5 7.18327C5.25833 7.18327 5.96667 7.47493 6.53333 8.0416L6.925 8.38327C7.24167 8.6666 7.71667 8.6666 8.03333 8.38327C8.40833 8.04994 8.40833 7.4666 8.03333 7.13327L7.68333 6.83327C6.83333 5.98327 5.7 5.5166 4.5 5.5166C2.01667 5.5166 0 7.53327 0 9.99994C0 12.4666 2.01667 14.4833 4.5 14.4833C5.7 14.4833 6.83333 14.0166 7.64167 13.2083L10 11.1249L10.0083 11.1333L11.2667 9.99994H11.2583L13.5 8.00827C14.175 7.33327 15.125 7.04993 16.1 7.2416C17.1417 7.44993 18 8.28327 18.2417 9.3166C18.675 11.1749 17.275 12.8166 15.5 12.8166C14.75 12.8166 14.0333 12.5249 13.4667 11.9583L13.0667 11.6083C12.75 11.3249 12.275 11.3249 11.9583 11.6083C11.5833 11.9416 11.5833 12.5249 11.9583 12.8583L12.3083 13.1666C13.1583 14.0083 14.2833 14.4749 15.4917 14.4749C18.2167 14.4749 20.375 12.0583 19.9333 9.2666C19.6833 7.60827 18.4583 6.1916 16.85 5.7166V5.7166Z" fill="#7F888F"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#7f888f;letter-spacing:0.15px">General settings</span>
+              <span class="ps-menu-label">General settings</span>
             </button>
-            <button class="ps-menu-item" data-section="phoneinfo" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:none;cursor:default;text-align:left">
+            <button type="button" class="ps-menu-item" data-section="phoneinfo" disabled>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 9.99967C11.8417 9.99967 13.3334 8.50801 13.3334 6.66634C13.3334 4.82467 11.8417 3.33301 10 3.33301C8.15837 3.33301 6.66671 4.82467 6.66671 6.66634C6.66671 8.50801 8.15837 9.99967 10 9.99967ZM10 11.6663C7.77504 11.6663 3.33337 12.783 3.33337 14.9997V15.833C3.33337 16.2913 3.70837 16.6663 4.16671 16.6663H15.8334C16.2917 16.6663 16.6667 16.2913 16.6667 15.833V14.9997C16.6667 12.783 12.225 11.6663 10 11.6663Z" fill="#7F888F"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#7f888f;letter-spacing:0.15px">My phone info</span>
+              <span class="ps-menu-label">My phone info</span>
             </button>
-            <button class="ps-menu-item" data-section="audio" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:none;cursor:default;text-align:left">
+            <button type="button" class="ps-menu-item" data-section="audio" disabled>
               <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18.375 9.19043H17.7188V1.31543H16.4062V9.19043H15.75C15.402 9.19078 15.0684 9.32917 14.8223 9.57524C14.5762 9.8213 14.4378 10.1549 14.4375 10.5029V11.8154C14.4378 12.1634 14.5762 12.4971 14.8223 12.7431C15.0684 12.9892 15.402 13.1276 15.75 13.1279H16.4062V19.6904H17.7188V13.1279H18.375C18.7229 13.1274 19.0565 12.989 19.3025 12.7429C19.5485 12.4969 19.687 12.1634 19.6875 11.8154V10.5029C19.6872 10.1549 19.5488 9.8213 19.3027 9.57524C19.0566 9.32917 18.723 9.19078 18.375 9.19043ZM18.375 11.8154H15.75V10.5029H18.375V11.8154ZM11.8125 3.94043H11.1562V1.31543H9.84375V3.94043H9.1875C8.83951 3.94078 8.50587 4.07917 8.25981 4.32524C8.01374 4.5713 7.87535 4.90494 7.875 5.25293V6.56543C7.87535 6.91342 8.01374 7.24706 8.25981 7.49312C8.50587 7.73919 8.83951 7.87758 9.1875 7.87793H9.84375V19.6904H11.1562V7.87793H11.8125C12.1605 7.87758 12.4941 7.73919 12.7402 7.49312C12.9863 7.24706 13.1247 6.91342 13.125 6.56543V5.25293C13.1247 4.90494 12.9863 4.5713 12.7402 4.32524C12.4941 4.07917 12.1605 3.94078 11.8125 3.94043ZM11.8125 6.56543H9.1875V5.25293H11.8125V6.56543ZM5.25 13.1279H4.59375V1.31543H3.28125V13.1279H2.625C2.27701 13.1283 1.94337 13.2667 1.69731 13.5127C1.45124 13.7588 1.31285 14.0924 1.3125 14.4404V15.7529C1.31285 16.1009 1.45124 16.4346 1.69731 16.6806C1.94337 16.9267 2.27701 17.0651 2.625 17.0654H3.28125V19.6904H4.59375V17.0654H5.25C5.59799 17.0651 5.93163 16.9267 6.17769 16.6806C6.42376 16.4346 6.56215 16.1009 6.5625 15.7529V14.4404C6.56215 14.0924 6.42376 13.7588 6.17769 13.5127C5.93163 13.2667 5.59799 13.1283 5.25 13.1279ZM5.25 15.7529H2.625V14.4404H5.25V15.7529Z" fill="#7F888F"/><path d="M8.59091 4.77238H12.4091V6.68147H8.59091V4.77238Z" fill="#7F888F"/><path d="M1.90909 14.3178H5.72727V16.2269H1.90909V14.3178Z" fill="#7F888F"/><path d="M15.2727 10.4996H19.0909V12.4087H15.2727V10.4996Z" fill="#7F888F"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#7f888f;letter-spacing:0.15px">Audio</span>
+              <span class="ps-menu-label">Audio</span>
             </button>
-            <button class="ps-menu-item" data-section="callrouting" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:none;cursor:default;text-align:left">
+            <button type="button" class="ps-menu-item" data-section="callrouting" disabled>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.8961 2.62469L18.0504 4.92035C18.1971 5.07668 18.1971 5.33998 18.0504 5.49632L15.8961 7.79198C15.6568 8.05528 15.2398 7.87426 15.2398 7.504V6.03115H10.5992C10.1746 6.03115 9.82711 5.66088 9.82711 5.20833C9.82711 4.75578 10.1746 4.38552 10.5992 4.38552H15.2398V2.91267C15.2398 2.5424 15.6568 2.36138 15.8961 2.62469Z" fill="#7F888F"/><path d="M13.8917 12.4833L16.0084 12.725C16.8501 12.8167 17.4917 13.5333 17.4834 14.3667V15.8083C17.4834 16.75 16.7001 17.5333 15.7584 17.475C8.65007 17.0333 2.9584 11.35 2.51673 4.23334C2.4584 3.29167 3.24173 2.50834 4.1834 2.50834H5.62507C6.46673 2.50834 7.1834 3.15001 7.27507 3.99167L7.51673 6.09167C7.57507 6.59167 7.40007 7.10001 7.04173 7.45834L5.50007 9.00001C6.70007 11.3667 8.6334 13.2917 10.9917 14.4917L12.5251 12.9583C12.8834 12.6 13.3834 12.425 13.8917 12.4833Z" fill="#7F888F"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#7f888f;letter-spacing:0.15px">Call routing</span>
+              <span class="ps-menu-label">Call routing</span>
             </button>
-            <button class="ps-menu-item" data-section="voicemail" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:none;cursor:default;text-align:left">
+            <button type="button" class="ps-menu-item" data-section="voicemail" disabled>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.4167 5C12.8833 5 10.8333 7.05 10.8333 9.58333C10.8333 10.6917 11.225 11.7083 11.8833 12.5H8.11667C8.775 11.7083 9.16667 10.6917 9.16667 9.58333C9.16667 7.05 7.11667 5 4.58333 5C2.05 5 0 7.05 0 9.58333C0 12.1167 2.05 14.1667 4.58333 14.1667H15.4167C17.95 14.1667 20 12.1167 20 9.58333C20 7.05 17.95 5 15.4167 5ZM4.58333 12.5C2.975 12.5 1.66667 11.1917 1.66667 9.58333C1.66667 7.975 2.975 6.66667 4.58333 6.66667C6.19167 6.66667 7.5 7.975 7.5 9.58333C7.5 11.1917 6.19167 12.5 4.58333 12.5ZM15.4167 12.5C13.8083 12.5 12.5 11.1917 12.5 9.58333C12.5 7.975 13.8083 6.66667 15.4167 6.66667C17.025 6.66667 18.3333 7.975 18.3333 9.58333C18.3333 11.1917 17.025 12.5 15.4167 12.5Z" fill="#7F888F"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#7f888f;letter-spacing:0.15px">Voicemail</span>
+              <span class="ps-menu-label">Voicemail</span>
             </button>
-            <button class="ps-menu-item" data-section="alerts" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:none;cursor:default;text-align:left">
+            <button type="button" class="ps-menu-item" data-section="alerts" disabled>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.99997 4.16667V11.2917C9.21664 10.8417 8.24997 10.6667 7.22497 11.025C6.10831 11.425 5.24997 12.4167 5.04997 13.5833C4.66664 15.8667 6.59997 17.8167 8.87497 17.4583C10.5083 17.2 11.6666 15.7 11.6666 14.0417V5.83333H13.3333C14.25 5.83333 15 5.08333 15 4.16667C15 3.25 14.25 2.5 13.3333 2.5H11.6666C10.75 2.5 9.99997 3.25 9.99997 4.16667Z" fill="#7F888F"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#7f888f;letter-spacing:0.15px">Alerts / Sounds</span>
+              <span class="ps-menu-label">Alerts / Sounds</span>
             </button>
-            <button class="ps-menu-item" data-section="conference" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:none;cursor:default;text-align:left">
+            <button type="button" class="ps-menu-item" data-section="conference" disabled>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13.3334 9.16699C14.7167 9.16699 15.825 8.05033 15.825 6.66699C15.825 5.28366 14.7167 4.16699 13.3334 4.16699C11.95 4.16699 10.8334 5.28366 10.8334 6.66699C10.8334 8.05033 11.95 9.16699 13.3334 9.16699ZM6.66671 9.16699C8.05004 9.16699 9.15837 8.05033 9.15837 6.66699C9.15837 5.28366 8.05004 4.16699 6.66671 4.16699C5.28337 4.16699 4.16671 5.28366 4.16671 6.66699C4.16671 8.05033 5.28337 9.16699 6.66671 9.16699ZM6.66671 10.8337C4.72504 10.8337 0.833374 11.8087 0.833374 13.7503V15.0003C0.833374 15.4587 1.20837 15.8337 1.66671 15.8337H11.6667C12.125 15.8337 12.5 15.4587 12.5 15.0003V13.7503C12.5 11.8087 8.60837 10.8337 6.66671 10.8337ZM13.3334 10.8337C13.0917 10.8337 12.8167 10.8503 12.525 10.8753C12.5417 10.8837 12.55 10.9003 12.5584 10.9087C13.5084 11.6003 14.1667 12.5253 14.1667 13.7503V15.0003C14.1667 15.292 14.1084 15.5753 14.0167 15.8337H18.3334C18.7917 15.8337 19.1667 15.4587 19.1667 15.0003V13.7503C19.1667 11.8087 15.275 10.8337 13.3334 10.8337Z" fill="#7F888F"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#7f888f;letter-spacing:0.15px">Conference</span>
+              <span class="ps-menu-label">Conference</span>
             </button>
-            <button class="ps-menu-item" data-section="calltransfer" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:none;cursor:default;text-align:left">
+            <button type="button" class="ps-menu-item" data-section="calltransfer" disabled>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.16667 8.08365C9.08333 8.00031 8.91667 7.91698 8.75 7.91698C8.41667 7.91698 8.08333 8.16698 8.08333 8.58365V12.0003C8.08333 12.3336 8.41667 12.667 8.75 12.667C8.91667 12.667 9.08333 12.5836 9.25 12.5003L11 10.7503C11.25 10.5003 11.25 10.0836 11 9.83365L9.16667 8.08365ZM6.25 13.5836C6 13.2503 5.58333 13.0836 5.25 13.0836H3.5C2.83333 11.0836 2.83333 8.91698 3.5 6.91698H5.25C5.66667 6.91698 6 6.75031 6.25 6.41698L7.33333 5.08365C7.75 4.58365 7.66667 3.83365 7.16667 3.33365L6.33333 2.50031C6.33333 2.50031 6.33333 2.50031 6.25 2.41698C5.83333 2.00031 5 2.00031 4.5 2.58365C0.75 6.83365 0.75 13.2503 4.5 17.5003C4.75 17.7503 5.08333 17.917 5.41667 17.917C5.75 17.917 6.08333 17.7503 6.33333 17.5003L7.16667 16.667C7.66667 16.167 7.66667 15.417 7.25 14.917L6.25 13.5836ZM18.0833 14.917L17 13.5836C16.75 13.2503 16.3333 13.0836 16 13.0836H14.25C13.5833 11.0836 13.5833 8.91698 14.25 6.91698H16C16.4167 6.91698 16.75 6.75031 17 6.41698L18.0833 5.08365C18.5 4.58365 18.4167 3.83365 18 3.33365L17.1667 2.50031C17.1667 2.50031 17.1667 2.50031 17.0833 2.41698C16.5833 1.91698 15.75 2.00031 15.25 2.50031C11.5 6.75031 11.5 13.167 15.25 17.417C15.5 17.667 15.8333 17.8336 16.1667 17.8336C16.5 17.8336 16.8333 17.667 17.0833 17.417L17.9167 16.5836C18.4167 16.167 18.5 15.417 18.0833 14.917Z" fill="#7F888F"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#7f888f;letter-spacing:0.15px">Call transfer</span>
+              <span class="ps-menu-label">Call transfer</span>
             </button>
-            <button class="ps-menu-item active" data-section="contacts" style="display:flex;align-items:center;gap:8px;padding:8px;width:100%;border:none;background:#dadada;cursor:pointer;text-align:left">
+            <button type="button" class="ps-menu-item active" data-section="contacts">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15.8333 0H4.16663C3.70829 0 3.33329 0.375 3.33329 0.833333C3.33329 1.29167 3.70829 1.66667 4.16663 1.66667H15.8333C16.2916 1.66667 16.6666 1.29167 16.6666 0.833333C16.6666 0.375 16.2916 0 15.8333 0ZM4.16663 20H15.8333C16.2916 20 16.6666 19.625 16.6666 19.1667C16.6666 18.7083 16.2916 18.3333 15.8333 18.3333H4.16663C3.70829 18.3333 3.33329 18.7083 3.33329 19.1667C3.33329 19.625 3.70829 20 4.16663 20ZM16.6666 3.33333H3.33329C2.41663 3.33333 1.66663 4.08333 1.66663 5V15C1.66663 15.9167 2.41663 16.6667 3.33329 16.6667H16.6666C17.5833 16.6667 18.3333 15.9167 18.3333 15V5C18.3333 4.08333 17.5833 3.33333 16.6666 3.33333ZM9.99996 5.625C11.0333 5.625 11.875 6.46667 11.875 7.5C11.875 8.53333 11.0333 9.375 9.99996 9.375C8.96663 9.375 8.12496 8.53333 8.12496 7.5C8.12496 6.46667 8.96663 5.625 9.99996 5.625ZM14.1666 14.1667H5.83329V12.9167C5.83329 11.525 8.60829 10.8333 9.99996 10.8333C11.3916 10.8333 14.1666 11.525 14.1666 12.9167V14.1667Z" fill="#4C5863"/></svg>
-              <span style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:600;color:#4c5863;letter-spacing:0.15px">Contacts</span>
+              <span class="ps-menu-label">Contacts</span>
             </button>
           </div>
           <!-- Main content -->
           <div style="flex:1;min-width:0;overflow-y:auto;padding:0 16px">
+            <div id="ps-panel-general" class="ps-settings-panel hidden" style="padding:24px 12px">
+              <p style="font-family:'Open Sans',sans-serif;font-size:14px;color:#4c5863;line-height:22px">General settings are not implemented in this prototype.</p>
+            </div>
+            <div id="ps-panel-phoneinfo" class="ps-settings-panel hidden" style="padding:24px 12px">
+              <p style="font-family:'Open Sans',sans-serif;font-size:14px;color:#4c5863;line-height:22px">My phone info is not implemented in this prototype.</p>
+            </div>
+            <div id="ps-panel-audio" class="ps-settings-panel hidden" style="padding:24px 12px">
+              <p style="font-family:'Open Sans',sans-serif;font-size:14px;color:#4c5863;line-height:22px">Audio settings are not implemented in this prototype.</p>
+            </div>
+            <div id="ps-panel-callrouting" class="ps-settings-panel hidden" style="padding:24px 12px">
+              <p style="font-family:'Open Sans',sans-serif;font-size:14px;color:#4c5863;line-height:22px">Call routing is not implemented in this prototype.</p>
+            </div>
+            <div id="ps-panel-voicemail" class="ps-settings-panel hidden" style="padding:24px 12px">
+              <p style="font-family:'Open Sans',sans-serif;font-size:14px;color:#4c5863;line-height:22px">Voicemail settings are not implemented in this prototype.</p>
+            </div>
+            <div id="ps-panel-alerts" class="ps-settings-panel hidden" style="padding:24px 12px">
+              <p style="font-family:'Open Sans',sans-serif;font-size:14px;color:#4c5863;line-height:22px">Alerts / Sounds are not implemented in this prototype.</p>
+            </div>
+            <div id="ps-panel-conference" class="ps-settings-panel hidden" style="padding:24px 12px">
+              <p style="font-family:'Open Sans',sans-serif;font-size:14px;color:#4c5863;line-height:22px">Conference settings are not implemented in this prototype.</p>
+            </div>
+            <div id="ps-panel-calltransfer" class="ps-settings-panel hidden" style="padding:24px 12px">
+              <p style="font-family:'Open Sans',sans-serif;font-size:14px;color:#4c5863;line-height:22px">Call transfer settings are not implemented in this prototype.</p>
+            </div>
+            <div id="ps-panel-contacts" class="ps-settings-panel">
             <div style="padding:20px 0;border-bottom:1px solid #e5e6e8">
               <span style="font-family:'Poppins',sans-serif;font-size:18px;font-weight:600;color:#001221;letter-spacing:0.15px">Contacts</span>
             </div>
@@ -2058,7 +3212,7 @@
             <!-- Extensions display row -->
             <div id="extCollapsed" style="display:flex;align-items:flex-start;justify-content:space-between;padding:20px 12px;border-bottom:1px solid #e5e6e8">
               <div>
-                <div style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:400;color:#001221;letter-spacing:0.25px;line-height:20px">Extensions display</div>
+                <div class="ps-ext-display-title">Extensions display</div>
                 <div style="font-family:'Open Sans',sans-serif;font-size:12px;font-weight:300;color:#001221;letter-spacing:0.25px;line-height:20px">By extension</div>
               </div>
               <button id="extEditBtn" style="display:flex;align-items:center;gap:4px;border:none;background:none;cursor:pointer">
@@ -2069,8 +3223,8 @@
             <!-- Extensions display expanded -->
             <div id="extExpanded" style="display:none;background:#f2f2f3;border-bottom:1px solid #e5e6e8">
               <div style="padding:20px 12px 0;display:flex;flex-direction:column;gap:8px">
-                <div style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:400;color:#001221;letter-spacing:0.25px;line-height:20px">Extension display</div>
-                <div style="font-family:'Open Sans',sans-serif;font-size:14px;font-weight:300;color:#192936;letter-spacing:0.25px;line-height:20px">Choose how contacts extensions are shown in your contact list. Group extensions under each user or show extensions as separate list items.</div>
+                <div class="ps-ext-display-title">Extensions display</div>
+                <div class="ps-ext-display-help">Choose how contacts extensions are shown in your contact list. Group extensions under each user or show extensions as separate list items.</div>
               </div>
               <div style="padding:24px 32px;display:flex;flex-direction:column;gap:8px">
                 <div style="display:flex;align-items:center;gap:12px;cursor:default">
@@ -2087,6 +3241,7 @@
                 <button id="extSaveBtn" style="height:36px;padding:0 12px;background:#142b53;color:#fff;border:none;border-radius:4px;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.25px;text-transform:uppercase;cursor:pointer">Save</button>
                 <button id="extCancelBtn" style="height:36px;padding:0 12px;background:none;color:#142b53;border:none;border-radius:4px;font-family:'Open Sans',sans-serif;font-size:14px;font-weight:700;letter-spacing:1.25px;text-transform:uppercase;cursor:pointer">Cancel</button>
               </div>
+            </div>
             </div>
           </div>
         </div>
