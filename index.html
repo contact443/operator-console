@@ -820,21 +820,76 @@
       }
       .contact-detail-card__footer {
         display: flex;
-        align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        min-width: 0;
+        width: 100%;
       }
       .contact-detail-card__ext-list {
         display: flex;
         flex-direction: column;
         gap: 4px;
       }
+      .contact-detail-card__ext-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        width: 100%;
+      }
+      .contact-detail-card__ext-row > .tab-pill {
+        flex-shrink: 0;
+      }
+      .contact-detail-card__device-wrap {
+        flex: 1;
+        min-width: 0;
+        display: block;
+      }
       .contact-detail-card__device {
+        display: block;
         font-family: "Inter", system-ui, sans-serif;
         font-weight: 400;
         font-size: 12px;
         line-height: 1.3;
         color: #7f888f;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+      }
+      /* Fixed flyout (sibling of card under scrim) — not clipped by card overflow */
+      .contact-detail-device-tooltip-flyout {
+        position: fixed;
+        z-index: 10002;
+        margin: 0;
+        padding: 6px 8px;
+        box-sizing: border-box;
+        max-width: min(280px, calc(100vw - 16px));
+        background: #fff;
+        border: 1px solid #cccfd2;
+        border-radius: 4px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        font-family: "Inter", system-ui, sans-serif;
+        font-weight: 400;
+        font-size: 11px;
+        line-height: 1.35;
+        color: #001221;
+        white-space: normal;
+        word-break: break-word;
+        pointer-events: none;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.12s ease, visibility 0.12s ease;
+      }
+      .contact-detail-device-tooltip-flyout.is-open {
+        visibility: visible;
+        opacity: 1;
+      }
+      .contact-detail-card__ext-row:focus-visible {
+        outline: 2px solid #142b53;
+        outline-offset: 2px;
+        border-radius: 4px;
       }
       button.contact-row-name-text {
         border: none;
@@ -1901,6 +1956,13 @@
         </button>
         <div id="contactDetailBody"></div>
       </div>
+      <div
+        id="contactDetailDeviceTooltipFlyout"
+        class="contact-detail-device-tooltip-flyout"
+        hidden
+        aria-hidden="true"
+        role="tooltip"
+      ></div>
     </div>
 
     <script>
@@ -2359,6 +2421,133 @@
         );
       }
 
+      function escapeHtmlText(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      /** Extension pill + truncated device label (full label on hover via fixed flyout). */
+      function contactDetailExtFooterHtml(c) {
+        const label = detailFooterDeviceLabel(c);
+        const safe = escapeHtmlText(label);
+        const dataAttr = encodeURIComponent(label);
+        return (
+          '<div class="contact-detail-card__ext-row" tabindex="0">' +
+          contactDetailExtensionPillHtml(c) +
+          '<div class="contact-detail-card__device-wrap">' +
+          '<span class="contact-detail-card__device" data-device-label="' +
+          dataAttr +
+          '">' +
+          safe +
+          "</span></div></div>"
+        );
+      }
+
+      function hideContactDetailDeviceTooltipFlyout() {
+        var fly = document.getElementById("contactDetailDeviceTooltipFlyout");
+        if (!fly) return;
+        fly.hidden = true;
+        fly.classList.remove("is-open");
+        fly.textContent = "";
+        fly.removeAttribute("style");
+        fly.setAttribute("aria-hidden", "true");
+      }
+
+      function showContactDetailDeviceTooltipFlyout(deviceEl) {
+        var fly = document.getElementById("contactDetailDeviceTooltipFlyout");
+        if (!fly || !deviceEl) return;
+        var enc = deviceEl.getAttribute("data-device-label");
+        var text = "";
+        if (enc) {
+          try {
+            text = decodeURIComponent(enc);
+          } catch (e) {
+            text = "";
+          }
+        }
+        if (!text) text = deviceEl.textContent || "";
+        fly.textContent = text;
+        fly.hidden = false;
+        fly.classList.add("is-open");
+        fly.setAttribute("aria-hidden", "false");
+        var r = deviceEl.getBoundingClientRect();
+        var fw = Math.min(280, window.innerWidth - 16);
+        var left = Math.max(8, Math.min(r.left, window.innerWidth - fw - 8));
+        fly.style.left = left + "px";
+        fly.style.top = r.bottom + 6 + "px";
+        fly.style.maxWidth = fw + "px";
+      }
+
+      /** Mark rows where the label fits (no flyout); else aria-label for SR. */
+      function syncContactDetailDeviceTooltips(host) {
+        if (!host) return;
+        requestAnimationFrame(function () {
+          host.querySelectorAll(".contact-detail-card__device").forEach(function (el) {
+            var row = el.closest(".contact-detail-card__ext-row");
+            var fits = el.scrollWidth <= el.clientWidth + 1;
+            if (row) row.classList.toggle("contact-detail-card__ext-row--label-fits", fits);
+            var enc = el.getAttribute("data-device-label");
+            if (fits) {
+              el.removeAttribute("aria-label");
+            } else if (enc) {
+              try {
+                el.setAttribute("aria-label", decodeURIComponent(enc));
+              } catch (e) {
+                /* ignore */
+              }
+            }
+          });
+        });
+      }
+
+      (function initContactDetailDeviceFlyout() {
+        var scrim = document.getElementById("contactDetailScrim");
+        if (!scrim || scrim._contactDetailFlyoutInit) return;
+        scrim._contactDetailFlyoutInit = true;
+        function rowFromTarget(t) {
+          return t && t.closest && t.closest(".contact-detail-card__ext-row");
+        }
+        scrim.addEventListener("pointerover", function (e) {
+          var row = rowFromTarget(e.target);
+          if (!row || !scrim.contains(row) || row.classList.contains("contact-detail-card__ext-row--label-fits")) return;
+          var dev = row.querySelector(".contact-detail-card__device");
+          if (dev) showContactDetailDeviceTooltipFlyout(dev);
+        });
+        scrim.addEventListener("pointerout", function (e) {
+          var row = rowFromTarget(e.target);
+          if (!row || !scrim.contains(row)) return;
+          var to = e.relatedTarget;
+          if (!to || !row.contains(to)) hideContactDetailDeviceTooltipFlyout();
+        });
+        scrim.addEventListener("focusin", function (e) {
+          var row = rowFromTarget(e.target);
+          if (!row || !scrim.contains(row) || row.classList.contains("contact-detail-card__ext-row--label-fits")) return;
+          var dev = row.querySelector(".contact-detail-card__device");
+          if (dev && row.contains(e.target)) showContactDetailDeviceTooltipFlyout(dev);
+        });
+        scrim.addEventListener("focusout", function (e) {
+          var row = rowFromTarget(e.target);
+          if (!row || !scrim.contains(row)) return;
+          var to = e.relatedTarget;
+          if (!to || !row.contains(to)) hideContactDetailDeviceTooltipFlyout();
+        });
+        var card = scrim.querySelector(".contact-detail-card");
+        if (card) {
+          card.addEventListener(
+            "scroll",
+            function () {
+              hideContactDetailDeviceTooltipFlyout();
+            },
+            { passive: true }
+          );
+        }
+        window.addEventListener("scroll", hideContactDetailDeviceTooltipFlyout, true);
+        window.addEventListener("resize", hideContactDetailDeviceTooltipFlyout);
+      })();
+
       function fillContactDetailModal(c) {
         const meta = contactDetailLocationMeta(c);
         const tz = meta.tz;
@@ -2387,8 +2576,7 @@
           <p class="contact-detail-card__value" id="contactDetailLocalTime">${formatDetailLocalTime(tz)}</p>
           <hr class="contact-detail-card__divider" />
           <div class="contact-detail-card__footer">
-            ${contactDetailExtensionPillHtml(c)}
-            <span class="contact-detail-card__device">${detailFooterDeviceLabel(c)}</span>
+            ${contactDetailExtFooterHtml(c)}
           </div>
         `;
 
@@ -2403,6 +2591,7 @@
           const ab = formatTimeZoneAbbrev(tz, new Date()) || abbrev;
           if (lbl) lbl.textContent = `Local Time (${ab})`;
         }, 30000);
+        syncContactDetailDeviceTooltips(host);
       }
 
       /** Same card chrome as single-contact detail; footer repeated once per extension (pill + device). */
@@ -2423,13 +2612,7 @@
           : "";
 
         const extSections = members
-          .map(
-            (m) =>
-              `<div class="contact-detail-card__footer">
-            ${contactDetailExtensionPillHtml(m)}
-            <span class="contact-detail-card__device">${detailFooterDeviceLabel(m)}</span>
-          </div>`
-          )
+          .map((m) => `<div class="contact-detail-card__footer">${contactDetailExtFooterHtml(m)}</div>`)
           .join("");
 
         host.innerHTML = `
@@ -2459,6 +2642,7 @@
           const ab = formatTimeZoneAbbrev(tz, new Date()) || abbrev;
           if (lbl) lbl.textContent = `Local Time (${ab})`;
         }, 30000);
+        syncContactDetailDeviceTooltips(host);
       }
 
       function getContactDetailAnchorElement(trigger) {
@@ -2505,7 +2689,11 @@
         card.style.width = cardWidth + "px";
         card.style.maxWidth = cardWidth + "px";
         requestAnimationFrame(function () {
-          requestAnimationFrame(apply);
+          requestAnimationFrame(function () {
+            hideContactDetailDeviceTooltipFlyout();
+            apply();
+            syncContactDetailDeviceTooltips(document.getElementById("contactDetailBody"));
+          });
         });
       }
 
@@ -2531,6 +2719,7 @@
       function closeContactDetail() {
         const scrim = document.getElementById("contactDetailScrim");
         if (!scrim) return;
+        hideContactDetailDeviceTooltipFlyout();
         if (contactDetailTimeTimer) {
           clearInterval(contactDetailTimeTimer);
           contactDetailTimeTimer = null;
