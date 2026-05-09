@@ -1427,7 +1427,7 @@
                     role="option"
                     class="flex min-w-0 items-center gap-2 px-[14px] py-[7px] text-left text-sm font-semibold text-[#001221] transition-colors hover:bg-ink-50/90"
                     data-line="hardphone"
-                    data-label="Steve Maxwell DeskPhone [7743]"
+                    data-label="Steve DeskPhone [7743]"
                     aria-selected="false"
                   >
                     <span
@@ -1448,7 +1448,7 @@
                         />
                       </svg>
                     </span>
-                    <span class="min-w-0 flex-1 break-words leading-snug">Steve Maxwell DeskPhone [7743]</span>
+                    <span class="min-w-0 flex-1 break-words leading-snug">Steve DeskPhone [7743]</span>
                   </button>
                 </div>
               </div>
@@ -2284,15 +2284,40 @@
         </div>`;
       }
 
-      /** Device label text — list + tile (internal person rows only; not office, not external) */
-      function tileDeviceLabelForContact(c) {
+      /** First word of display name — used for mixed device-label formats. */
+      function contactFirstName(c) {
+        const parts = String(c.name || "")
+          .trim()
+          .split(/\s+/)
+          .filter(Boolean);
+        return parts[0] || "";
+      }
+
+      /** 0 = full name + device, 1 = first name + device, 2 = device only */
+      function contactDeviceLabelVariant(c) {
+        return contactDetailHash(c) % 3;
+      }
+
+      function internalPersonDeviceTypeForContact(c) {
         const pool = ["Desk Phone", "Office Phone", "Soft Phone", "Conference Phone"];
         let h = 0;
         const key = String(c.ext) + "\0" + c.name;
         for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
-        const device = pool[h % pool.length];
-        const name = String(c.name || "").trim();
-        return name ? `${name} ${device}` : device;
+        return pool[h % pool.length];
+      }
+
+      /** Device label text — list + tile (internal person rows only; not office, not external) */
+      function tileDeviceLabelForContact(c) {
+        const device = internalPersonDeviceTypeForContact(c);
+        const full = String(c.name || "").trim();
+        const first = contactFirstName(c);
+        const v = contactDeviceLabelVariant(c);
+        if (v === 2) return device;
+        if (v === 1) {
+          const who = first || full;
+          return who ? `${who} ${device}` : device;
+        }
+        return full ? `${full} ${device}` : device;
       }
 
       /** Deterministic location + IANA zone for detail card local time */
@@ -2370,12 +2395,26 @@
       }
 
       function detailFooterDeviceLabel(c) {
-        const name = String(c.name || "").trim();
-        const prefix = name ? `${name} ` : "";
-        if (c.external) return prefix + "External";
+        const full = String(c.name || "").trim();
+        const first = contactFirstName(c);
+        const v = contactDeviceLabelVariant(c);
+        if (c.external) {
+          if (v === 2) return "External";
+          if (v === 1) {
+            const who = first || full;
+            return who ? `${who} External` : "External";
+          }
+          return full ? `${full} External` : "External";
+        }
         if (c.type === "office") {
           const pool = ["Conference Phone", "Desk Phone", "Office Phone"];
-          return prefix + pool[contactDetailHash(c) % pool.length];
+          const device = pool[contactDetailHash(c) % pool.length];
+          if (v === 2) return device;
+          if (v === 1) {
+            const who = first || full;
+            return who ? `${who} ${device}` : device;
+          }
+          return full ? `${full} ${device}` : device;
         }
         return tileDeviceLabelForContact(c);
       }
@@ -3118,7 +3157,7 @@
         volumeSlider.addEventListener("change", syncVolumeFill);
       }
 
-      /* Line selector (Steve Maxwell TH / DeskPhone) — dropdown matches design ref */
+      /* Line selector (Steve Maxwell TH / Steve DeskPhone) — dropdown matches design ref */
       (function initLineSelector() {
         const wrap = document.getElementById("lineSelectorWrap");
         const btn = document.getElementById("lineSelectorBtn");
@@ -3279,12 +3318,16 @@
           case "external":
             return !!c.external;
           case "management":
-            return ["4040", "5050", "6209", "7733", "4111"].includes(c.ext);
+            return (
+              ["4040", "5050", "6209", "7733", "4111"].includes(c.ext) ||
+              /^jordan\s+blake$/i.test(String(c.name || "").trim())
+            );
           case "ny-office":
             return c.ext.startsWith("22");
           case "sales":
             return (
               /sales|queue|reception|customer/i.test(c.name) ||
+              /^cynthia\s+campbell$/i.test(String(c.name || "").trim()) ||
               ["1000", "1010", "6209", "2200"].includes(c.ext)
             );
           default:
