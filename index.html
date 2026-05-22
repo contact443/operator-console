@@ -418,10 +418,12 @@
         border-radius: 2px;
       }
       .contact-grid {
-        width: 100%;
         margin: 0;
-        columns: 280px;
+        column-width: 280px;
         column-gap: 16px;
+        /* JS sets an explicit width so the columns stay exactly 280px wide regardless
+           of screen size — otherwise CSS multi-column stretches them, which inflates
+           the visible horizontal gap between adjacent tiles. */
       }
       /* Tile list: don’t stretch the tile block to the full scroll height (flex parent). */
       #contactList.flex > .contact-grid {
@@ -2618,10 +2620,29 @@
         const host = document.getElementById("dialCallCardsHost");
         const empty = document.getElementById("dialCallCardsEmpty");
         if (!host || !empty) return;
-        const selected = document.querySelector(
-          '#lineSelectorMenu [role="option"][aria-selected="true"]'
-        );
-        const show = selected?.getAttribute("data-line") === "hardphone";
+        // Show the SVG host whenever the currently-selected extension has any active
+        // call (top card, incoming/ringing card, or an on-hold card). Otherwise fall
+        // back to the centered "No active calls" message. The hardphone-only gate is
+        // gone — each extension now owns its own call list.
+        function anyCallVisible() {
+          var topCard = document.getElementById('topCallCard');
+          if (topCard && topCard.style.display !== 'none') return true;
+          var incoming = document.getElementById('incomingCallCard');
+          if (incoming && incoming.style.display !== 'none') return true;
+          var answeredHold = document.getElementById('answeredHoldCard');
+          if (answeredHold && answeredHold.style.display !== 'none') return true;
+          var existingHold = document.getElementById('existingHoldCards');
+          if (existingHold && existingHold.style.display !== 'none') {
+            var wrappers = existingHold.querySelectorAll(
+              '#card1Wrapper, #card2Wrapper, #card3Wrapper, .dynamic-hold-wrapper'
+            );
+            for (var i = 0; i < wrappers.length; i++) {
+              if (wrappers[i].style.display !== 'none') return true;
+            }
+          }
+          return false;
+        }
+        var show = anyCallVisible();
         host.classList.toggle("hidden", !show);
         host.setAttribute("aria-hidden", show ? "false" : "true");
         empty.classList.toggle("hidden", show);
@@ -3813,6 +3834,10 @@ function starSvg(filled) {
             i = j;
           }
           listEl.innerHTML = `<div class="contact-grid p-4">${tiles.join("")}</div>`;
+          // Lock the grid to N × 280 + (N − 1) × 16 so column-width: 280 doesn't stretch.
+          if (typeof window.__fixContactGridWidth === 'function') {
+            window.__fixContactGridWidth();
+          }
         } else {
           const segments = [];
           let multiExtWrapOpen = false;
@@ -4017,6 +4042,7 @@ bindContactDetailTriggers(listEl);
             menu.querySelectorAll('[role="option"]').forEach((opt) => {
           opt.addEventListener("click", (e) => {
             e.stopPropagation();
+            const newLine = opt.getAttribute("data-line");
             const label = opt.getAttribute("data-label") || "";
             if (labelEl) labelEl.textContent = label;
             menu.querySelectorAll('[role="option"]').forEach((o) => {
@@ -4026,6 +4052,11 @@ bindContactDetailTriggers(listEl);
               if (tick) tick.classList.toggle("invisible", !sel);
             });
             setOpen(false);
+            // Snapshot the previous extension's call list and restore the newly
+            // selected extension's. Calls are kept separate per extension — no overlap.
+            if (typeof window.__switchExtension === 'function') {
+              window.__switchExtension(newLine);
+            }
             syncDialCallCardsVisibility();
           });
         });
@@ -5376,6 +5407,10 @@ bindContactDetailTriggers(listEl);
         // inside the viewBox; this naturally pushes the mute/volume/settings row below
         // it down to make room.
         if (typeof window.__updateCallCardViewBox === 'function') window.__updateCallCardViewBox();
+
+        // After any state change, flip the SVG host vs. the external "No active calls"
+        // placeholder based on whether the current extension has any visible cards.
+        if (typeof syncDialCallCardsVisibility === 'function') syncDialCallCardsVisibility();
       };
 
       /* Resize the dialer SVG viewBox so all visible on-hold cards fit. The SVG uses
@@ -6766,6 +6801,236 @@ bindContactDetailTriggers(listEl);
           window.__answerFromContactCard(contactExt, label);
         }
       });
+    })();
+
+    /* ------------- Lock contact-grid width for fixed-width tile columns ----
+       CSS multi-column with column-width: 280px would otherwise stretch each
+       column to absorb leftover space, which widens the visible gap between
+       tiles on larger screens. By pinning the grid's width to exactly
+       N × 280 + (N − 1) × 16 (plus its own horizontal padding), each column
+       is exactly 280px and the gap is exactly 16px no matter the screen size.
+       Tiles within each column stack with a constant 16px (margin-bottom)
+       vertical gap, flowing tile-by-tile down a column before starting the
+       next column — heights of adjacent columns are independent. */
+    window.__fixContactGridWidth = function () {
+      var TILE = 280;
+      var GAP = 16;
+      var grids = document.querySelectorAll('.contact-grid');
+      grids.forEach(function (grid) {
+        var parent = grid.parentElement;
+        if (!parent) return;
+        // Temporarily clear width so we read the parent's actual available width.
+        grid.style.width = '';
+        var parentW = parent.clientWidth;
+        var cs = window.getComputedStyle(grid);
+        var padL = parseFloat(cs.paddingLeft) || 0;
+        var padR = parseFloat(cs.paddingRight) || 0;
+        var availContent = parentW - padL - padR;
+        var cols = Math.max(1, Math.floor((availContent + GAP) / (TILE + GAP)));
+        var contentW = cols * TILE + (cols - 1) * GAP;
+        grid.style.width = (contentW + padL + padR) + 'px';
+      });
+    };
+    window.addEventListener('resize', function () { window.__fixContactGridWidth(); });
+    // Run once at load so the initial tile view (if it's already active) is sized.
+    window.__fixContactGridWidth();
+
+    /* ------------- Per-extension call state ------------------------------
+       The user owns two extensions (teamhub = Steve Maxwell TH [5938], hardphone =
+       Steve DeskPhone [7743]). Each extension has its own ongoing / on-hold list;
+       switching between them swaps the entire call-card DOM in place. Hardphone
+       inherits the preset cards from initial markup; teamhub starts empty.
+       Calls answered on one extension never appear on the other. */
+    (function initPerExtensionCallState() {
+      var STATES = { teamhub: null, hardphone: null };
+      // The line selector option marked aria-selected="true" at page load is teamhub.
+      var current = 'teamhub';
+
+      function captureCallState() {
+        var s = {
+          topCard: { visible: false, caller: '', initials: '', startMs: null,
+                     pillKind: 'external', useOriginalCaller: false, hasAvatar: false },
+          incomingCard: { visible: false },
+          holdCards: [],
+          parkMeta: { e164: '', from: '', ext: '' },
+        };
+
+        var topCard = document.getElementById('topCallCard');
+        if (topCard && topCard.style.display !== 'none') {
+          s.topCard.visible = true;
+          var newGroup = document.getElementById('topCardNewCallerGroup');
+          if (newGroup && newGroup.style.display !== 'none') {
+            var t = document.getElementById('topCardNewCallerText');
+            var i = document.getElementById('topCardNewCallerInitials');
+            var avatar = document.getElementById('topCardNewCallerAvatar');
+            s.topCard.caller = t ? (t.textContent || '') : '';
+            s.topCard.initials = i ? (i.textContent || '') : '';
+            s.topCard.hasAvatar = !!(avatar && avatar.style.display !== 'none');
+          } else {
+            // Preset "(416) 7638098" SVG path-art group, not the dynamic caller group.
+            s.topCard.useOriginalCaller = true;
+          }
+          var topTimer = document.querySelector('#topCallCard .dial-call-duration-live');
+          s.topCard.startMs = topTimer ? topTimer.getAttribute('data-call-start-ms') : null;
+          var intl = document.getElementById('topCardPillInternal');
+          s.topCard.pillKind = (intl && intl.style.display !== 'none') ? 'internal' : 'external';
+        }
+
+        var incoming = document.getElementById('incomingCallCard');
+        if (incoming && incoming.style.display !== 'none') {
+          s.incomingCard.visible = true;
+        }
+
+        var holdSpecs = [
+          { id: 'answeredHoldCard', textId: 'answeredHoldCallerText', timerId: 'answeredHoldTimer' },
+          { id: 'card1Wrapper',     textId: 'card1CallerText',        timerId: 'card1Timer' },
+          { id: 'card2Wrapper',     textId: 'card2CallerText',        timerId: 'card2Timer' },
+          { id: 'card3Wrapper',     textId: 'card3CallerText',        timerId: 'card3Timer' },
+        ];
+        holdSpecs.forEach(function (spec) {
+          var w = document.getElementById(spec.id);
+          if (w && w.style.display !== 'none') {
+            var textEl = document.getElementById(spec.textId);
+            var timerEl = document.getElementById(spec.timerId);
+            s.holdCards.push({
+              caller: textEl ? (textEl.textContent || '') : '',
+              startMs: timerEl ? timerEl.getAttribute('data-call-start-ms') : null,
+            });
+          }
+        });
+        document.querySelectorAll('.dynamic-hold-wrapper').forEach(function (w) {
+          if (w.style.display !== 'none') {
+            var textEl = w.querySelector('.dynamic-hold-caller');
+            var timerEl = w.querySelector('.dynamic-hold-timer');
+            s.holdCards.push({
+              caller: textEl ? (textEl.textContent || '') : '',
+              startMs: timerEl ? timerEl.getAttribute('data-call-start-ms') : null,
+            });
+          }
+        });
+
+        var metaRoot = document.getElementById('ongoingTopCallParkMeta');
+        var fromEl = document.getElementById('parkMetaFrom');
+        var extEl = document.getElementById('parkMetaExt');
+        s.parkMeta.e164 = metaRoot ? (metaRoot.getAttribute('data-park-e164') || '') : '';
+        s.parkMeta.from = fromEl ? (fromEl.textContent || '') : '';
+        s.parkMeta.ext = extEl ? (extEl.textContent || '') : '';
+        return s;
+      }
+
+      function applyCallState(state) {
+        state = state || {
+          topCard: { visible: false },
+          incomingCard: { visible: false },
+          holdCards: [],
+          parkMeta: { e164: '', from: '', ext: '' },
+        };
+
+        // 1. Tear down every hold slot — we will rebuild from state.holdCards.
+        ['answeredHoldCard', 'card1Wrapper', 'card2Wrapper', 'card3Wrapper'].forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) {
+            el.style.display = 'none';
+            el.removeAttribute('transform');
+          }
+        });
+        document.querySelectorAll('.dynamic-hold-wrapper').forEach(function (w) {
+          if (w.parentNode) w.parentNode.removeChild(w);
+        });
+
+        // 2. Top call card
+        var topCard = document.getElementById('topCallCard');
+        var origCaller = document.getElementById('topCardOriginalCaller');
+        var newGroup = document.getElementById('topCardNewCallerGroup');
+        if (state.topCard && state.topCard.visible) {
+          if (topCard) topCard.style.display = '';
+          if (state.topCard.useOriginalCaller) {
+            if (origCaller) origCaller.style.display = '';
+            if (newGroup) newGroup.style.display = 'none';
+            if (typeof setTopCardPill === 'function') setTopCardPill('external');
+          } else {
+            if (origCaller) origCaller.style.display = 'none';
+            if (newGroup) newGroup.style.display = '';
+            var text = document.getElementById('topCardNewCallerText');
+            var initials = document.getElementById('topCardNewCallerInitials');
+            var avatar = document.getElementById('topCardNewCallerAvatar');
+            if (state.topCard.hasAvatar) {
+              if (avatar) avatar.style.display = '';
+              if (initials) {
+                initials.style.display = '';
+                initials.textContent = state.topCard.initials || '';
+              }
+              if (text) {
+                text.setAttribute('x', '40');
+                text.textContent = state.topCard.caller || '';
+              }
+            } else {
+              if (avatar) avatar.style.display = 'none';
+              if (initials) initials.style.display = 'none';
+              if (text) {
+                text.setAttribute('x', '14');
+                text.textContent = state.topCard.caller || '';
+              }
+            }
+            if (typeof setTopCardPill === 'function') {
+              setTopCardPill(state.topCard.pillKind || 'external');
+            }
+          }
+          var topTimer = document.querySelector('#topCallCard .dial-call-duration-live');
+          if (topTimer) {
+            topTimer.setAttribute('data-call-start-ms', state.topCard.startMs || String(Date.now()));
+          }
+        } else {
+          if (topCard) topCard.style.display = 'none';
+        }
+
+        // 3. Incoming/ringing card (SVG content is hardcoded — we only toggle visibility)
+        var incoming = document.getElementById('incomingCallCard');
+        if (incoming) {
+          incoming.style.display = (state.incomingCard && state.incomingCard.visible) ? '' : 'none';
+        }
+
+        // 4. Hold cards. __addToUserHoldQueue fills answered → card3 → dynamic, preserving
+        //    each entry's original startMs so the timer keeps ticking from the right point.
+        var existingHold = document.getElementById('existingHoldCards');
+        if (state.holdCards && state.holdCards.length > 0) {
+          if (existingHold) existingHold.style.display = '';
+          state.holdCards.forEach(function (h) {
+            if (typeof window.__addToUserHoldQueue === 'function') {
+              window.__addToUserHoldQueue(h.caller, h.startMs);
+            }
+          });
+        } else {
+          if (existingHold) existingHold.style.display = 'none';
+        }
+
+        // 5. Park meta (a subsequent Park action records the right caller for this extension)
+        var metaRoot = document.getElementById('ongoingTopCallParkMeta');
+        var fromEl = document.getElementById('parkMetaFrom');
+        var extEl = document.getElementById('parkMetaExt');
+        if (metaRoot) metaRoot.setAttribute('data-park-e164', state.parkMeta ? state.parkMeta.e164 : '');
+        if (fromEl) fromEl.textContent = state.parkMeta ? state.parkMeta.from : '';
+        if (extEl) extEl.textContent = state.parkMeta ? state.parkMeta.ext : '';
+
+        // 6. Resync labels, positioning, and host visibility.
+        if (typeof window.__syncEmptyStateLabels === 'function') {
+          window.__syncEmptyStateLabels();
+        }
+      }
+
+      window.__switchExtension = function (newLine) {
+        if (!newLine || newLine === current) return;
+        STATES[current] = captureCallState();
+        current = newLine;
+        applyCallState(STATES[current]);
+      };
+
+      // Capture the hardcoded preset (Mary Clary ringing + (416) 763-8098 ongoing +
+      // two on-hold callers) as hardphone's state, then clear the DOM so teamhub —
+      // which is selected by default — shows its empty "No active calls" state.
+      STATES.hardphone = captureCallState();
+      STATES.teamhub = null;
+      applyCallState(null);
     })();
     </script>
   </body>
