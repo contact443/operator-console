@@ -419,11 +419,11 @@
       }
       .contact-grid {
         margin: 0;
-        column-width: 280px;
-        column-gap: 16px;
-        /* JS sets an explicit width so the columns stay exactly 280px wide regardless
-           of screen size — otherwise CSS multi-column stretches them, which inflates
-           the visible horizontal gap between adjacent tiles. */
+        position: relative;
+        /* JS absolute-positions each tile in masonry layout: tiles flow into
+           columns in DOM (alphabetical) order, round-robin, and each tile sits
+           directly under the previous tile in its column — rows are not
+           height-aligned. JS also sets the grid's width + height. */
       }
       /* Tile list: don’t stretch the tile block to the full scroll height (flex parent). */
       #contactList.flex > .contact-grid {
@@ -435,11 +435,8 @@
         box-sizing: border-box;
         width: 280px;
         max-width: 100%;
-        break-inside: avoid;
-        page-break-inside: avoid;
-        margin-bottom: 16px;
         border-radius: 12px;
-        border: 1px solid #B2B7BC;
+        border: 1px solid #e5e6e8;
         background: #fff;
         padding-left: 16px;
         padding-right: 16px;
@@ -457,10 +454,8 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        /* Shift star/avatar/name row 12px left; width compensation keeps the call column on the right aligned */
-        margin-left: -12px;
-        width: calc(100% + 12px);
         min-width: 0;
+        width: 100%;
       }
       /* Star button ↔ avatar circle */
       .contact-tile-leading {
@@ -515,12 +510,11 @@
         min-width: 0;
         width: 100%;
       }
-      /* Same horizontal band as .contact-tile-main so busy line aligns with avatar column */
+      /* Below the main row — inset so the busy line aligns with the body column (avatar 40 + gap 8 = 48). */
       .contact-tile-status-below {
         margin-top: 12px;
-        margin-left: -12px;
-        width: calc(100% + 12px);
-        padding-left: 44px;
+        width: 100%;
+        padding-left: 48px;
         box-sizing: border-box;
         min-width: 0;
       }
@@ -725,12 +719,12 @@
       :root {
         --row-hover: #F6F7FA;
       }
-      /* Hover fill matches horizontal divider span (inset), not full list width */
+      /* Hover fill spans the full width of the allotted list area */
       .row-hover.contact-row::before {
         content: "";
         position: absolute;
-        left: 20px;
-        right: 20px;
+        left: 0;
+        right: 0;
         top: 0;
         bottom: 0;
         background: transparent;
@@ -2160,16 +2154,12 @@
           <!-- Filter chips row -->
           <div class="flex items-center justify-between gap-3 border-b border-ink-100 px-4 py-3">
             <div id="groupChips" class="flex flex-wrap items-center gap-2">
-              <button type="button" class="chip" data-group="favorites">Favorites</button>
               <button type="button" class="chip chip-selected" data-group="internal">Internal</button>
               <button type="button" class="chip" data-group="external">External</button>
-              <button type="button" class="chip" data-group="management">Management</button>
-              <button type="button" class="chip" data-group="ny-office">NY Office</button>
-              <button type="button" class="chip" data-group="sales">Sales</button>
             </div>
             <button
               type="button"
-              class="edit-groups-btn flex h-9 items-center border border-[#A3B6D7] bg-white px-4 uppercase transition-colors"
+              class="edit-groups-btn flex h-9 shrink-0 items-center bg-white px-4 uppercase transition-colors whitespace-nowrap"
               style="
                 color: #142b53;
                 font-family: 'Inter', system-ui, sans-serif;
@@ -2178,7 +2168,7 @@
                 letter-spacing: 0.04em;
               "
             >
-              Edit Groups
+              <span aria-hidden="true" style="font-size:18px;line-height:1;margin-right:6px;font-weight:700">+</span>Add Contact
             </button>
           </div>
 
@@ -2996,13 +2986,30 @@ function starSvg(filled) {
         return h;
       }
 
+      /** Hash of just the contact's name — used so every extension belonging to
+       *  the same internal person resolves to the same email / location. */
+      function contactNameHash(c) {
+        let h = 0;
+        const key = String((c && c.name) || "");
+        for (let i = 0; i < key.length; i++) h = (h * 31 + key.charCodeAt(i)) >>> 0;
+        return h;
+      }
+
       function contactDetailLocationMeta(c) {
         // Only external contacts may have "No location assigned". All internal contacts
         // (people and office/simple-device entries) always get a location from the pool.
         if (c && c.external) return { city: null, tz: "UTC" };
+        // Internal persons normally share a location across all extensions of the same
+        // name (name-hash), with a rare deterministic exception (~1 in 12 extensions)
+        // where a single extension sits in a different city.
+        if (c && c.type === "person") {
+          const extH = contactDetailHash(c);
+          const isException = (extH % 12) === 7;
+          const h = isException ? extH : contactNameHash(c);
+          return CONTACT_DETAIL_LOCATIONS[h % CONTACT_DETAIL_LOCATIONS.length];
+        }
         const h = contactDetailHash(c);
-        const loc = CONTACT_DETAIL_LOCATIONS[h % CONTACT_DETAIL_LOCATIONS.length];
-        return loc;
+        return CONTACT_DETAIL_LOCATIONS[h % CONTACT_DETAIL_LOCATIONS.length];
       }
 
       function contactLocation(c) {
@@ -3048,7 +3055,11 @@ function starSvg(filled) {
           .filter(Boolean)
           .map((p, i) => (i === 0 ? p.toLowerCase() : p.toLowerCase()))
           .join(".");
-        const seed = contactDetailHash(c);
+        // Domain is name-derived so every extension belonging to the same internal
+        // person resolves to identical email; offices stay per-entry.
+        const seed = (!c.external && c.type === "person")
+          ? contactNameHash(c)
+          : contactDetailHash(c);
         const domains = ["sangoma.com", "teamhub.io", "corp.local"];
         return `${local || "user"}@${domains[seed % domains.length]}`;
       }
@@ -3441,8 +3452,7 @@ function starSvg(filled) {
 
       /** Same internal person (multiple extensions): persons only, full name match, not directory-only externals. */
       function contactGroupKey(c) {
-        if (!c || c.external || c.type !== "person") return null;
-        return c.name.trim().toLowerCase();
+        return null;
       }
 
       function contactGroupHasMultipleExtensions(key) {
@@ -3541,9 +3551,7 @@ function starSvg(filled) {
           avatarLeading = avatarPerson(c);
         }
 
-        const starSlot = compact
-          ? `<div class="h-10 w-10 shrink-0" aria-hidden="true"></div>`
-          : `<button class="flex h-10 w-10 shrink-0 items-center justify-center" data-fav="${idx}" title="${c.fav ? "Remove from favorites" : "Add to favorites"}">${starSvg(c.fav)}</button>`;
+        const starSlot = "";
 
         /* Same width as header avatar so extension line aligns with the name column, not the avatar */
         const groupExtAvatarSpacer = compact
@@ -3641,12 +3649,7 @@ function starSvg(filled) {
             ? avatarPerson(first, true)
             : avatarPerson(first);
 
-        const allFav = isGrouped
-          ? exts.every((e) => e.c.fav)
-          : first.fav;
-        const starBtn = isGrouped
-          ? `<button class="flex h-10 w-10 shrink-0 items-center justify-center" data-fav-group="${encodeURIComponent(groupKey || "")}" title="${allFav ? "Remove favorites for all extensions" : "Add all extensions to favorites"}">${starSvg(allFav)}</button>`
-          : `<button class="flex h-10 w-10 shrink-0 items-center justify-center" data-fav="${firstIdx}" title="${first.fav ? "Remove from favorites" : "Add to favorites"}">${starSvg(first.fav)}</button>`;
+        const starBtn = "";
 
         const headerName = `<button type="button" class="contact-tile-name contact-row-name-text contact-detail-open" data-detail-idx="${firstIdx}">${hlText(first.name, state.searchQuery)}</button>`;
 
@@ -3702,15 +3705,11 @@ function starSvg(filled) {
         return `
           <div class="contact-card contact-card--single">
             <div class="contact-tile-main">
-              <div class="contact-tile-leading">
-                ${starBtn}
-                ${avatarLeading}
-              </div>
+              ${avatarLeading}
               <div class="contact-tile-body">
                 <div class="contact-tile-name-row">${headerName}</div>
                 <div class="contact-tile-ext-row">
                   <span class="ext-pill" data-contact-ext="${c.ext}">${hlText(formatExtForDisplay(c), state.searchQuery)}</span>
-                  ${c.external ? "" : statusBadge(presenceStatusForContact(c))}
                   ${deviceLabelHtml}
                 </div>
               </div>
@@ -5513,22 +5512,20 @@ bindContactDetailTriggers(listEl);
         }
 
         function applyTransition(c) {
-          // Independent chance to mutate the incomingCalls list. The distribution is
-          // biased toward 0–2 calls per extension to match typical user inboxes:
-          // pop probability rises sharply with current length so calls drain faster
-          // than they pile up. 3 calls is an occasional exception, 4 is the hard cap
-          // (very rare).
+          // Independent chance to mutate the incomingCalls list. Distribution is biased
+          // toward 1 call per extension as the resting state, with 2 as an occasional
+          // excursion and 3 a very rare exception. 4 is the hard cap.
           if (Math.random() < 0.50) {
             if (!Array.isArray(c.incomingCalls)) c.incomingCalls = [];
             var len = c.incomingCalls.length;
-            // Pop probability ramps up with length: at 0 we never pop (no-op),
-            // at 4 we always pop (enforce cap). Numbers tuned so the steady state
-            // sits squarely in the 0–2 band, with 3 as a brief excursion.
+            // Pop probability at each length is tuned so the steady state sits at
+            // length 1: from 0 we always add, from 1 we slightly favor staying (low
+            // pop), from 2+ we strongly drain back down.
             var popProb;
-            if (len === 0)      popProb = 0;
-            else if (len === 1) popProb = 0.55;
-            else if (len === 2) popProb = 0.80;
-            else if (len === 3) popProb = 0.90;
+            if (len === 0)      popProb = 0;     // always add when empty
+            else if (len === 1) popProb = 0.45;  // lean toward draining (keep most extensions at 0-1)
+            else if (len === 2) popProb = 0.98;  // very strongly drain (push to 3 is ~1/4 of prior rate)
+            else if (len === 3) popProb = 1.0;   // always drain immediately when reached
             else                popProb = 1.0;   // len >= 4: enforce cap
 
             if (len > 0 && Math.random() < popProb) {
@@ -5588,8 +5585,8 @@ bindContactDetailTriggers(listEl);
           refresh();
         }
 
-        // Tick cadence — between the previous 2000ms (a touch sluggish) and 800ms (frantic).
-        setInterval(tick, 1300);
+        // Tick cadence — slowed 25% (1300ms → ~1733ms) per request.
+        setInterval(tick, 1733);
       })();
 
       /* Add a call to the user's on-hold queue WITHOUT replacing any existing on-hold call.
@@ -6819,16 +6816,39 @@ bindContactDetailTriggers(listEl);
       grids.forEach(function (grid) {
         var parent = grid.parentElement;
         if (!parent) return;
-        // Temporarily clear width so we read the parent's actual available width.
+        // Temporarily clear width/height so we read the parent's actual available width.
         grid.style.width = '';
+        grid.style.height = '';
         var parentW = parent.clientWidth;
         var cs = window.getComputedStyle(grid);
         var padL = parseFloat(cs.paddingLeft) || 0;
         var padR = parseFloat(cs.paddingRight) || 0;
+        var padT = parseFloat(cs.paddingTop) || 0;
+        var padB = parseFloat(cs.paddingBottom) || 0;
         var availContent = parentW - padL - padR;
         var cols = Math.max(1, Math.floor((availContent + GAP) / (TILE + GAP)));
         var contentW = cols * TILE + (cols - 1) * GAP;
         grid.style.width = (contentW + padL + padR) + 'px';
+
+        // Masonry: assign tiles to columns round-robin in DOM order so
+        // alphabetical order reads left-to-right across the first row, then
+        // wraps. Each tile sits directly under the previous tile in its
+        // column — column heights are independent.
+        var tiles = grid.querySelectorAll('.contact-card');
+        var colHeights = new Array(cols).fill(0);
+        tiles.forEach(function (tile, i) {
+          var col = i % cols;
+          tile.style.position = 'absolute';
+          tile.style.left = (padL + col * (TILE + GAP)) + 'px';
+          tile.style.top = (padT + colHeights[col]) + 'px';
+          colHeights[col] += tile.offsetHeight + GAP;
+        });
+        var maxH = 0;
+        for (var k = 0; k < colHeights.length; k++) {
+          var h = colHeights[k] > 0 ? colHeights[k] - GAP : 0;
+          if (h > maxH) maxH = h;
+        }
+        grid.style.height = (padT + maxH + padB) + 'px';
       });
     };
     window.addEventListener('resize', function () { window.__fixContactGridWidth(); });
