@@ -4768,6 +4768,15 @@ bindContactDetailTriggers(listEl);
           });
         });
 
+        // Call-time date helpers: format a date N days before today as M/D/YYYY (en-US),
+        // matching the format used when a live call is parked.
+        function __recentDate(daysAgo) {
+          var d = new Date();
+          d.setDate(d.getDate() - (daysAgo || 0));
+          return d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+        }
+        var __todayDate = __recentDate(0);
+
         // Unattended calls data and rendering
         var uaRows = [
           { recipient: "Cody Briant (Me)", rExt: "7645", location: "San Francisco", caller: "(684) 555-0102", cExt: "(684) 555-0102", type: "External", typeColor: "#aa2690", date: "2/11/2023", time: "8:21 AM" },
@@ -4778,6 +4787,13 @@ bindContactDetailTriggers(listEl);
           { recipient: "Mel Johnson", rExt: "6610", location: "Sarasota", caller: "Kristin Watson", cExt: "1707", type: "Internal", typeColor: "#158fcf", date: "2/11/2023", time: "8:21 AM" },
           { recipient: "Stanley Miller", rExt: "7756", location: "Austin", caller: "Theresa Webb", cExt: "(308) 555-0121", type: "Internal", typeColor: "#158fcf", date: "2/11/2023", time: "8:21 AM" }
         ];
+        // Replace the placeholder call-time dates with recent ones (today → a few days back).
+        (function () {
+          var offsets = [0, 0, 1, 1, 2, 3, 4];
+          uaRows.forEach(function (r, i) {
+            r.date = __recentDate(offsets[i] != null ? offsets[i] : 0);
+          });
+        })();
         var uaContainer = document.getElementById("unattendedRows");
         /** @type {'all'|'internal'|'external'} */
         var uaTypeFilter = "all";
@@ -4874,6 +4890,8 @@ bindContactDetailTriggers(listEl);
           { from: "Cameron Williamson", ext: "1805", position: "6538", timeout: "01:29", date: "2/11/2023", time: "8:21 AM", hidden: false },
           { from: "Leslie Alexander", ext: "(10) x14", position: "3342", timeout: "02:13", date: "2/11/2023", time: "8:21 AM", hidden: false }
         ];
+        // Parked calls all show the current day as their call-time date.
+        parkedData.forEach(function (r) { r.date = __todayDate; });
         var parkedContainer = document.getElementById("parkedRows");
         // Timeout sort direction: 'oldest' (oldest → most recent, the default) sorts
         // longest-parked calls first; 'recent' reverses it (most recent → oldest).
