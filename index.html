@@ -2237,7 +2237,7 @@
             </div>
 
             <!-- Keypad -->
-            <div class="flex flex-col items-center justify-start px-6 pb-5 pt-1">
+            <div class="flex flex-col items-center justify-start px-[38px] pb-5 pt-1">
               <div id="keypad" class="grid grid-cols-3 gap-x-[16px] gap-y-[16px]">
                 <!-- buttons injected by JS -->
               </div>
@@ -3013,6 +3013,18 @@
         { name: "Lina Okada",             ext: "6475550109", type: "person", fav: true,  external: true },
         { name: "Marcus Delgado",         ext: "3105550110", type: "person", fav: false, external: true },
         { name: "Sarah Okimoto",          ext: "8085550111", type: "person", fav: false, external: true },
+
+        // External persons with multiple phone numbers — collapsed to one list row
+        // (showing the first ext); the detail view lists all numbers.
+        { name: "Diana Voss",             ext: "4165551001", type: "person", fav: true,  external: true },
+        { name: "Diana Voss",             ext: "4165551002", type: "person", fav: false, external: true },
+        { name: "Diana Voss",             ext: "9055551003", type: "person", fav: false, external: true },
+        { name: "Tobias Reed",            ext: "2125559001", type: "person", fav: false, external: true },
+        { name: "Tobias Reed",            ext: "9175559002", type: "person", fav: false, external: true },
+        { name: "Hannah Vogel",           ext: "6135550100", type: "person", fav: true,  external: true },
+        { name: "Hannah Vogel",           ext: "5145550101", type: "person", fav: false, external: true },
+        { name: "Hannah Vogel",           ext: "8195550102", type: "person", fav: false, external: true },
+        { name: "Hannah Vogel",           ext: "4385550103", type: "person", fav: false, external: true },
       ];
 
       /* Presence: online (free), busy, offline — no separate "away" state */
@@ -3620,9 +3632,10 @@ function starSvg(filled) {
         if (!c) return;
         const scrim = document.getElementById("contactDetailScrim");
         if (!scrim) return;
-        const gKey = contactGroupKey(c);
-        if (gKey && contactGroupHasMultipleExtensions(gKey)) {
-          fillContactDetailModalMulti(contactsForGroupKey(gKey));
+        const detailKey = contactDetailGroupKey(c);
+        const members = detailKey ? allContactsForDetailGroupKey(detailKey) : [];
+        if (members.length > 1) {
+          fillContactDetailModalMulti(members);
         } else {
           fillContactDetailModal(c);
         }
@@ -3662,6 +3675,22 @@ function starSvg(filled) {
       /** Same internal person (multiple extensions): persons only, full name match, not directory-only externals. */
       function contactGroupKey(c) {
         return null;
+      }
+
+      /** Detail-view grouping: two contacts share a detail view if they resolve to the
+         same key. Internal persons → synthetic email (name-derived). External persons →
+         their name (multiple phone numbers per external contact). Offices stay solo.
+         Operates on the full contacts array, not the filtered list. */
+      function contactDetailGroupKey(c) {
+        if (!c || c.type !== "person") return null;
+        if (c.external) return "ext:" + c.name;
+        if (!contactDetailShowsEmail(c)) return null;
+        return syntheticEmailFromContact(c);
+      }
+
+      function allContactsForDetailGroupKey(key) {
+        if (!key) return [];
+        return contacts.filter(function (row) { return contactDetailGroupKey(row) === key; });
       }
 
       function contactGroupHasMultipleExtensions(key) {
@@ -4908,6 +4937,16 @@ bindContactDetailTriggers(listEl);
           const sign = state.sortByStatus === "availableFirst" ? 1 : -1;
           list.sort((a, b) => sign * (order(a) - order(b)));
         }
+        // Collapse external contacts that share a name (same person, multiple phone
+        // numbers). The detail view will list every number; the list keeps only the
+        // first occurrence so the row is shown once.
+        const seenExternal = new Set();
+        list = list.filter((c) => {
+          if (!c.external) return true;
+          if (seenExternal.has(c.name)) return false;
+          seenExternal.add(c.name);
+          return true;
+        });
         state.filtered = list;
       }
 
